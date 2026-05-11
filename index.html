@@ -275,7 +275,7 @@ async function copyToClipboard() {
 
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz9jcKZClqU_O1FUC0Yag4DKfGYNxdnWzGnXNVhPYtf99BUVjXCRJxK2W4jn1bQWJhztA/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbwpzZdRh8H5ZVL_QRwLWabeIOR4CmQ7ZZu7rWAG04VqbQ9BaT6YIxAvKyuypSwu7tFLfw/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
@@ -292,9 +292,16 @@ async function uploadToSheets() {
     };
 
     // GitHub Pages(https://)에서는 CORS 없이 POST 가능
-    // POST가 GET으로 리다이렉트되므로 처음부터 GET으로 전송
-    const getUrl = scriptUrl + '?payload=' + encodeURIComponent(JSON.stringify(payload));
-    const res = await fetch(getUrl);
+    // Apps Script는 POST를 GET으로 리다이렉트함
+    // body를 URL 파라미터로 분리해서 전송
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    // 2000자 이하면 GET, 이상이면 청크로 분리
+    const url = scriptUrl + '?payload=' + encoded;
+    const res = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'payload=' + encoded
+    });
 
     const result = await res.json();
     if (result.status === 'ok') {
