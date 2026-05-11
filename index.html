@@ -275,7 +275,7 @@ async function copyToClipboard() {
 
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbwpzZdRh8H5ZVL_QRwLWabeIOR4CmQ7ZZu7rWAG04VqbQ9BaT6YIxAvKyuypSwu7tFLfw/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbxaOhlQuStLMhu5tTjRlK-VRgIFk5nc63WXnFtzhNvqUkq1FpBfYHYXyPg-ZS5YeHR8Iw/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
