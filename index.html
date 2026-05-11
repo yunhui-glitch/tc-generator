@@ -257,19 +257,25 @@ async function generateTC() {
 // ── 클립보드 복사 ──
 async function copyToClipboard() {
   if (!tcData.length) return;
-  const jiraTitle = document.getElementById('jiraTitle').value.trim();
-  const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  const category = document.getElementById('category').value.trim() || 'EPG';
-  const sheetName = document.getElementById('sheetName').value.trim() || ('TC_' + category + '_' + today);
-  const payload = JSON.stringify({ jiraTitle, sheetName, tcData });
+
+  // 탭 구분 텍스트(TSV) 형식으로 복사 — 구글 시트에 Ctrl+V로 바로 붙여넣기 가능
+  const headers = ['TC ID','JIRA 번호','대분류','중분류','소분류','시험 항목','Pre-Condition / Input Data','시험 절차','주요 점검 항목'];
+  const rows = tcData.map(tc => [
+    tc.tc_id||'', tc.jira||'', tc.category_large||'', tc.category_mid||'',
+    tc.category_small||'', tc.test_item||'', tc.precondition||'',
+    tc.test_steps||'', tc.expected_result||''
+  ].map(v => v.replace(/\t/g,' ').replace(/\n/g,' / ')).join('\t'));
+
+  const tsv = [headers.join('\t'), ...rows].join('\n');
+
   try {
-    await navigator.clipboard.writeText(payload);
-    showToast('📋 복사 완료! 구글 시트 Apps Script에서 붙여넣기 버튼을 눌러주세요.', 'success');
+    await navigator.clipboard.writeText(tsv);
+    showToast('📋 복사 완료! 구글 시트에서 원하는 셀 클릭 후 Ctrl+V 하세요.', 'success');
   } catch(e) {
     const ta = document.createElement('textarea');
-    ta.value = payload; document.body.appendChild(ta); ta.select();
+    ta.value = tsv; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); document.body.removeChild(ta);
-    showToast('📋 복사 완료!', 'success');
+    showToast('📋 복사 완료! 구글 시트에서 Ctrl+V 하세요.', 'success');
   }
 }
 
