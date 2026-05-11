@@ -273,44 +273,50 @@ async function copyToClipboard() {
   }
 }
 
-// ── 구글 시트 업로드 (Apps Script POST) ──
-async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz49MpkdCXEHl9JzOFf1RJAOWWY-cyYlUK0deCfE95_VCqcR8Cme4BnGpHWA6YV8ShXgw/exec';
+// ── [수정본] 구글 시트 업로드 (JSONP 방식 - 보안 에러 해결) ──
+function uploadToSheets() {
+  const scriptUrl = document.getElementById('scriptUrl').value.trim();
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
+
+  if (!url) { showToast('❗ Apps Script URL을 입력해주세요', 'error'); return; }
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
   setStatus('업로드 중...', false);
 
-  try {
-    // spreadsheetId 제거 — Apps Script가 getActiveSpreadsheet()로 자동 처리
-    const payload = {
-      sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
-      jiraTitle,
-      tcData
-    };
-
-    // GitHub Pages(https://)에서는 CORS 없이 POST 가능
-    const res = await fetch(scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-    if (result.status === 'ok') {
-      setStatus(`구글 시트 업로드 완료 — "${result.sheetName}" 탭`, true);
-      showToast(`📊 "${result.sheetName}" 탭으로 업로드 완료!`, 'success');
-    } else {
-      throw new Error(result.message || '업로드 실패');
-    }
-  } catch(e) {
-    showToast('❌ ' + e.message, 'error');
-    setStatus('업로드 오류: ' + e.message, false);
-  } finally {
+  // 1. 보안 우회를 위한 랜덤 콜백 함수 생성
+  const cbName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+  
+  // 2. 서버 응답 처리 함수 정의
+  window[cbName] = function(res) {
     showLoading(false);
-  }
+    if (res.status === 'ok') {
+      setStatus(`구글 시트 업로드 완료 — "${res.sheetName}" 탭`, true);
+      showToast(`📊 "${res.sheetName}" 탭으로 업로드 완료!`, 'success');
+    } else {
+      showToast('❌ 실패: ' + res.message, 'error');
+      setStatus('업로드 실패', false);
+    }
+    // 사용한 스크립트 태그와 전역 함수 제거
+    const oldScript = document.getElementById(cbName);
+    if (oldScript) document.body.removeChild(oldScript);
+    delete window[cbName];
+  };
+
+  // 3. 전송 데이터 준비
+  const payload = {
+    sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
+    jiraTitle: jiraTitle,
+    tcData: tcData
+  };
+
+  // 4. script 태그 삽입 방식으로 데이터 전송 (CORS 우회 핵심)
+  const script = document.createElement('script');
+  script.id = cbName;
+  const encodedData = encodeURIComponent(JSON.stringify(payload));
+  script.src = `${scriptUrl}?callback=${cbName}&data=${encodedData}`;
+  document.body.appendChild(script);
 }
 
 // ── Excel 다운로드 (팀 양식 기반) ──
