@@ -294,7 +294,6 @@ async function uploadToSheets() {
     // GitHub Pages(https://)에서는 CORS 없이 POST 가능
     const res = await fetch(scriptUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
 
