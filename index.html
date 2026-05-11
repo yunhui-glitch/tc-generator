@@ -275,7 +275,7 @@ async function copyToClipboard() {
 
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz0mpKIM6YhKuww73jVZS0iAKFTzxdMCwLiUXYjs2O5l80bU0qg8RTcROlCTBH4Ne8WLg/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbwpzZdRh8H5ZVL_QRwLWabeIOR4CmQ7ZZu7rWAG04VqbQ9BaT6YIxAvKyuypSwu7tFLfw/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
@@ -292,10 +292,9 @@ async function uploadToSheets() {
     };
 
     // GitHub Pages(https://)에서는 CORS 없이 POST 가능
-    const res = await fetch(scriptUrl, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+    // POST가 GET으로 리다이렉트되므로 처음부터 GET으로 전송
+    const getUrl = scriptUrl + '?payload=' + encodeURIComponent(JSON.stringify(payload));
+    const res = await fetch(getUrl);
 
     const result = await res.json();
     if (result.status === 'ok') {
