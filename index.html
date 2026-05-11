@@ -431,8 +431,29 @@ function showLoading(show,msg){document.getElementById('loadingOverlay').classNa
 function setStatus(msg,ok){document.getElementById('statusText').textContent=msg;document.getElementById('sdot').className='sdot'+(ok?' ok':'');}
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',4000);}
 document.addEventListener('keydown',ev=>{if(ev.ctrlKey&&ev.key==='Enter')generateTC();});
-document.getElementById('geminiKey').addEventListener('input',ev=>{document.getElementById('geminiDot').className='dot'+(ev.target.value.startsWith('AIza')?' ok':'');});
-document.getElementById('scriptUrl').addEventListener('input',ev=>{document.getElementById('scriptDot').className='dot'+(ev.target.value.startsWith('https://')?' ok':'');});
+
+// localStorage에서 저장된 값 불러오기
+(function(){
+  const savedKey = localStorage.getItem('gemini_key');
+  const savedScript = localStorage.getItem('script_url');
+  const savedSheet = localStorage.getItem('sheet_url');
+  if(savedKey) { document.getElementById('geminiKey').value=savedKey; document.getElementById('geminiDot').className='dot ok'; }
+  if(savedScript) { document.getElementById('scriptUrl').value=savedScript; document.getElementById('scriptDot').className='dot ok'; }
+  if(savedSheet) document.getElementById('sheetUrl').value=savedSheet;
+})();
+
+// 입력 시 localStorage에 저장
+document.getElementById('geminiKey').addEventListener('input',ev=>{
+  document.getElementById('geminiDot').className='dot'+(ev.target.value.startsWith('AIza')?' ok':'');
+  localStorage.setItem('gemini_key', ev.target.value);
+});
+document.getElementById('scriptUrl').addEventListener('input',ev=>{
+  document.getElementById('scriptDot').className='dot'+(ev.target.value.startsWith('https://')?' ok':'');
+  localStorage.setItem('script_url', ev.target.value);
+});
+document.getElementById('sheetUrl').addEventListener('input',ev=>{
+  localStorage.setItem('sheet_url', ev.target.value);
+});
 </script>
 </body>
 </html>
