@@ -40,6 +40,7 @@
   .btn-sm:hover{background:rgba(255,255,255,.06)}.btn-sm:disabled{opacity:.3;cursor:not-allowed}
   .btn-sm.blue{background:rgba(79,143,255,.15);border-color:rgba(79,143,255,.4);color:var(--accent)}
   .btn-sm.green{background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.35);color:var(--success)}
+  .btn-sm.purple{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.35);color:#a78bfa}
   .btn-sm.green:hover{background:rgba(62,207,142,.2)}
   .table-wrap{flex:1;overflow:auto}
   table{width:100%;border-collapse:collapse;font-size:12px}
@@ -129,6 +130,7 @@
       <div class="result-meta" id="resultMeta">시나리오를 입력하고 생성 버튼을 눌러주세요</div>
       <div class="btn-group">
         <button class="btn-sm blue" id="excelBtn" onclick="downloadExcel()" disabled>⬇ Excel</button>
+        <button class="btn-sm purple" id="copyBtn" onclick="copyToClipboard()" disabled>📋 내용 복사</button>
         <button class="btn-sm green" id="sheetsBtn" onclick="uploadToSheets()" disabled>📊 구글 시트에 추가</button>
       </div>
     </div>
@@ -237,6 +239,7 @@ async function generateTC() {
     renderTable(tcData);
     document.getElementById('resultMeta').innerHTML = `<strong>${tcData.length}개 TC</strong> 생성 완료 &nbsp;·&nbsp; ${new Date().toLocaleTimeString('ko-KR')}`;
     document.getElementById('excelBtn').disabled = false;
+    document.getElementById('copyBtn').disabled = false;
     document.getElementById('sheetsBtn').disabled = false;
     document.getElementById('geminiDot').className = 'dot ok';
     document.getElementById('modelLabel').textContent = model;
@@ -251,9 +254,28 @@ async function generateTC() {
   }
 }
 
+// ── 클립보드 복사 ──
+async function copyToClipboard() {
+  if (!tcData.length) return;
+  const jiraTitle = document.getElementById('jiraTitle').value.trim();
+  const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const category = document.getElementById('category').value.trim() || 'EPG';
+  const sheetName = document.getElementById('sheetName').value.trim() || ('TC_' + category + '_' + today);
+  const payload = JSON.stringify({ jiraTitle, sheetName, tcData });
+  try {
+    await navigator.clipboard.writeText(payload);
+    showToast('📋 복사 완료! 구글 시트 Apps Script에서 붙여넣기 버튼을 눌러주세요.', 'success');
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = payload; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 복사 완료!', 'success');
+  }
+}
+
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz2DrPf5aenFYwFLvCtv5fMPxCkbSF-xGTPqW5kT03MsOpWCHEwHNSHpzZvhvYo5R7B4A/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbzmliNgrkK8V2RpWp9-lVOx1WXG_lNtLDcVCwynwIdk2II5zQ2KeSg-zieq1mFo57tyEA/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
