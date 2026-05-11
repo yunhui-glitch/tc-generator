@@ -1,155 +1,387 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TC 자동 생성기 (구글 시트 자동 연동)</title>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--border:rgba(255,255,255,0.08);--accent:#4f8fff;--text:#e8eaf0;--text2:#8b90a8;--success:#3ecf8e}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);padding:20px;line-height:1.6}
-  .container{max-width:1000px;margin:0 auto}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
-  header{text-align:center;margin-bottom:30px}
-  label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px}
-  input,textarea{width:100%;background:#0a0c10;border:1px solid var(--border);border-radius:8px;padding:12px;color:#fff;margin-bottom:15px;font-family:inherit}
-  textarea{height:160px;resize:vertical}
-  .btn-group{display:flex;gap:10px}
-  button{flex:1;padding:15px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:0.2s}
-  #genBtn{background:var(--accent);color:#fff}
-  #sendBtn{background:var(--success);color:#fff;display:none}
-  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:#555}
-  .status-dot.ok{background:var(--success)}
-  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}
-  th,td{border:1px solid var(--border);padding:10px;text-align:left}
-  th{background:rgba(255,255,255,0.05)}
-</style>
-</head>
-<body>
+// ================================================================
+// TC 자동 생성기 — Google Apps Script (최종)
+// 원본 Sample 시트 양식 완전 재현
+// 설치: 구글 시트 > 확장 프로그램 > Apps Script > 붙여넣기 > 배포 > 웹앱
+// ================================================================
 
-<div class="container">
-  <header>
-    <h1>TC 자동 생성기</h1>
-    <p style="color:var(--text2)">보안 오류 차단 및 구글 시트 자동 전송 모드</p>
-  </header>
+// ── 색상 상수 (원본 분석 기준) ──
+var C = {
+  TITLE_BG : '#CFE2F3',  // 2행 타이틀 배경
+  TITLE_FG : '#073763',  // 2행 타이틀 글자
+  META_BG  : '#A2C4C9',  // 3~6행 메타 배경
+  HEAD_BG  : '#EFEFEF',  // 7~8행 헤더 배경
+  NE_BG    : '#BFBFBF',  // N/E(Not Executed) 배경
+  BLK_BG   : '#FFFF00',  // Blocked(N/A) 배경
+  WHITE    : '#FFFFFF',
+};
 
-  <div class="card">
-    <label>Gemini API Key <span id="geminiDot" class="status-dot"></span></label>
-    <input type="password" id="apiKey" placeholder="AIza... 입력">
-    
-    <label>Apps Script URL (배포된 웹 앱 URL) <span id="scriptDot" class="status-dot"></span></label>
-    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
-    
-    <label>테스트 요구사항</label>
-    <textarea id="promptInput" placeholder="기능 설명 또는 지라 내용을 입력하세요..."></textarea>
-    
-    <div class="btn-group">
-      <button id="genBtn" onclick="generate()">TC 생성하기</button>
-      <button id="sendBtn" onclick="sendToSheet()">🚀 구글 시트로 자동 전송</button>
-    </div>
-  </div>
+// ── PoC 설정 (시작 열 번호, 1-based) ──
+// K=11, O=15, S=19, W=23, AA=27, AE=31, AI=35
+var POC_LIST = [
+  { name: 'Smart3',    startCol: 11 },
+  { name: 'AI4Vision', startCol: 15 },
+  { name: 'AI5',       startCol: 19 },
+  { name: 'AI2',       startCol: 23 },
+  { name: 'AI2Max',    startCol: 27 },
+  { name: 'Smart3Mini',startCol: 31 },
+  { name: 'UHD4',      startCol: 35 },
+];
+// 각 PoC: +0=Status열(K), +1~+3=비고병합(L~N)
+// 카운트 라벨: K=Passed, L=수식, M=N/E, N=수식 (3행)
 
-  <div id="resultCard" class="card" style="display:none">
-    <h3>미리보기</h3>
-    <div id="tableOut"></div>
-  </div>
-</div>
+var DATA_START = 9;  // TC 데이터 시작 행
 
-<script>
-let currentPayload = null;
-
-// 로컬 스토리지에 API Key와 URL 자동 저장
-(function() {
-  const k = localStorage.getItem('tc_gemini_key');
-  const s = localStorage.getItem('tc_script_url');
-  if(k) { document.getElementById('apiKey').value = k; updateDot('geminiDot', k); }
-  if(s) { document.getElementById('scriptUrl').value = s; updateDot('scriptDot', s); }
-})();
-
-function updateDot(id, val) {
-  document.getElementById(id).className = 'status-dot' + (val ? ' ok' : '');
+// ── 유틸 함수 ──
+function colLetter(n) {
+  var s = '';
+  while (n > 0) {
+    var r = (n - 1) % 26;
+    s = String.fromCharCode(65 + r) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
 }
 
-document.getElementById('apiKey').addEventListener('input', e => {
-  localStorage.setItem('tc_gemini_key', e.target.value);
-  updateDot('geminiDot', e.target.value);
-});
-document.getElementById('scriptUrl').addEventListener('input', e => {
-  localStorage.setItem('tc_script_url', e.target.value);
-  updateDot('scriptDot', e.target.value);
-});
+function setCell(sheet, row, col, value, opts) {
+  var cell = sheet.getRange(row, col);
+  if (value !== null && value !== undefined) cell.setValue(value);
+  if (opts) {
+    if (opts.bg)     cell.setBackground(opts.bg);
+    if (opts.fg)     cell.setFontColor(opts.fg);
+    if (opts.bold !== undefined) cell.setFontWeight(opts.bold ? 'bold' : 'normal');
+    if (opts.size)   cell.setFontSize(opts.size);
+    if (opts.halign) cell.setHorizontalAlignment(opts.halign);
+    if (opts.valign) cell.setVerticalAlignment(opts.valign);
+    if (opts.wrap !== undefined) cell.setWrap(opts.wrap);
+    if (opts.border) cell.setBorder(true,true,true,true,true,true,'#BFBFBF', SpreadsheetApp.BorderStyle.SOLID);
+  }
+  return cell;
+}
 
-async function generate() {
-  const key = document.getElementById('apiKey').value;
-  const input = document.getElementById('promptInput').value;
-  const btn = document.getElementById('genBtn');
+// ── 헤더 생성 (1~8행) ──
+function buildHeader(sheet, jiraTitle) {
 
-  if(!key || !input) return alert('API Key와 요구사항을 입력하세요.');
+  // ROW 1: 빈 행
+  sheet.setRowHeight(1, 10);
 
-  btn.disabled = true;
-  btn.textContent = '생성 중...';
+  // ROW 2: 타이틀
+  sheet.setRowHeight(2, 30);
+  sheet.getRange(2,2,1,9).merge()
+    .setValue(jiraTitle || '[JIRA 번호][기능명A] / [JIRA 번호][기능명B]')
+    .setBackground(C.TITLE_BG).setFontColor(C.TITLE_FG)
+    .setFontWeight('bold').setFontSize(12)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle');
 
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: input + "\n\n반드시 JSON 형식으로만 답변: { \"jiraTitle\": \"제목\", \"tcData\": [{ \"tc_id\": \"TC-001\", \"category_large\": \"대분류\", \"category_mid\": \"중분류\", \"category_small\": \"소분류\", \"test_item\": \"항목\", \"precondition\": \"사전조건\", \"test_steps\": \"단계\", \"expected_result\": \"기대결과\" }] }" }]}]
-      })
+  POC_LIST.forEach(function(poc) {
+    var sc = poc.startCol;
+    sheet.getRange(2, sc, 1, 4).merge()
+      .setValue(poc.name)
+      .setBackground(C.TITLE_BG).setFontColor(C.TITLE_FG)
+      .setFontWeight('bold').setFontSize(12)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // ROW 3: 작성자/검수자/TC총개수 + PoC Passed/N/E
+  sheet.setRowHeight(3, 15);
+  [['작성자',2],['검수자',3],['TC 총 개수',4]].forEach(function(item) {
+    sheet.getRange(3, item[1]).setValue(item[0])
+      .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // E3:E6, F3:F6 병합
+  sheet.getRange(3,5,4,1).merge().setBackground(C.META_BG);
+  sheet.getRange(3,6,4,1).merge()
+    .setValue('PoC 별 진행률(%)')
+    .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle');
+
+  // G3~J3: Smart3/AI4Vision/AI5/AI2
+  [['Smart3',7],['AI4Vision',8],['AI5',9],['AI2',10]].forEach(function(item) {
+    sheet.getRange(3, item[1]).setValue(item[0])
+      .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // PoC 카운트 라벨 + COUNTIF 수식 (3~6행)
+  var countRows = [
+    { row:3, left:'Passed',     leftBg:null,    right:'N/E(Not Executed)', rightBg:C.NE_BG  },
+    { row:4, left:'Con-Passed', leftBg:null,    right:'Rejected',          rightBg:null      },
+    { row:5, left:'Failed',     leftBg:null,    right:'Blocked(N/A)',      rightBg:C.BLK_BG },
+    { row:6, left:'Reopen',     leftBg:null,    right:'Deleted',           rightBg:null      },
+  ];
+  var countFormulas = [
+    ['Passed','N/E'],
+    ['Con-Passed','Rejected'],
+    ['Failed','Blocked'],
+    ['Reopen','Deleted'],
+  ];
+
+  POC_LIST.forEach(function(poc) {
+    var sc   = poc.startCol;
+    var scL  = colLetter(sc);  // Status 열 문자 (K, O, S...)
+
+    countRows.forEach(function(cr, ri) {
+      // 왼쪽 라벨
+      var lc = sheet.getRange(cr.row, sc);
+      lc.setValue(cr.left).setFontSize(9).setHorizontalAlignment('center').setVerticalAlignment('middle');
+      if (cr.leftBg) lc.setBackground(cr.leftBg);
+
+      // 왼쪽 숫자 (COUNTIF)
+      sheet.getRange(cr.row, sc+1)
+        .setFormula('=COUNTIF(' + scL + '$' + DATA_START + ':' + scL + '$999,"' + countFormulas[ri][0] + '")')
+        .setFontSize(10).setHorizontalAlignment('center').setVerticalAlignment('middle');
+
+      // 오른쪽 라벨
+      var rc = sheet.getRange(cr.row, sc+2);
+      rc.setValue(cr.right).setFontSize(9).setHorizontalAlignment('center').setVerticalAlignment('middle');
+      if (cr.rightBg) rc.setBackground(cr.rightBg);
+
+      // 오른쪽 숫자 (COUNTIF)
+      sheet.getRange(cr.row, sc+3)
+        .setFormula('=COUNTIF(' + scL + '$' + DATA_START + ':' + scL + '$999,"' + countFormulas[ri][1] + '")')
+        .setFontSize(10).setHorizontalAlignment('center').setVerticalAlignment('middle');
+    });
+  });
+
+  // ROW 4: D4 병합 + TC 총 개수 수식 + 진행률%
+  sheet.setRowHeight(4, 15);
+  sheet.getRange(4,4,3,1).merge()
+    .setFormula('=COUNTA($B$' + DATA_START + ':$B$999)')
+    .setBackground(C.WHITE).setFontWeight('bold').setFontSize(10)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle');
+
+  // G4~J4: 진행률 수식 (Smart3~AI2)
+  var pocCols4 = [[7,'L'],[8,'P'],[9,'T'],[10,'X']];
+  pocCols4.forEach(function(item) {
+    sheet.getRange(4, item[0])
+      .setFormula('=SUM(' + item[1] + '3,' + item[1] + '4,' + colLetter(POC_LIST[ pocCols4.indexOf(item) ].startCol+3) + '4,' + colLetter(POC_LIST[ pocCols4.indexOf(item) ].startCol+3) + '5)/$D$4')
+      .setBackground(C.WHITE).setFontColor('#000000').setFontWeight('bold').setFontSize(10)
+      .setNumberFormat('0%').setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // ROW 5: 검수 시작일/종료일
+  sheet.setRowHeight(5, 15);
+  sheet.getRange(5,2).setValue('검수 시작일')
+    .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  sheet.getRange(5,3).setValue('검수 종료일')
+    .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle');
+
+  // G5~J5: AI2Max/Smart3Mini/UHD4
+  [['AI2Max',7],['Smart3Mini',8],['UHD4',9]].forEach(function(item) {
+    sheet.getRange(5, item[1]).setValue(item[0])
+      .setBackground(C.META_BG).setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+  sheet.getRange(5,10).setBackground(C.META_BG);
+
+  // ROW 6: 진행률 AI2Max/Smart3Mini/UHD4
+  sheet.setRowHeight(6, 15);
+  var pocCols6 = [[7,27],[8,31],[9,35]];
+  pocCols6.forEach(function(item) {
+    var sc = item[1];
+    sheet.getRange(6, item[0])
+      .setFormula('=SUM(' + colLetter(sc+1) + '3,' + colLetter(sc+1) + '4,' + colLetter(sc+3) + '4,' + colLetter(sc+3) + '5)/$D$4')
+      .setBackground(C.WHITE).setFontColor('#000000').setFontWeight('bold').setFontSize(10)
+      .setNumberFormat('0%').setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // ROW 7~8: TC 헤더
+  sheet.setRowHeight(7, 13);
+  sheet.setRowHeight(8, 13);
+
+  var tcHeaders = [
+    [2,'TC ID'], [3,' JIRA 번호'], [4,'대분류'], [5,'중분류'],
+    [6,'소분류'], [7,'시험 항목'], [8,'Pre-Condition/\nInput Data'],
+    [9,'시험 절차'], [10,'주요 점검 항목']
+  ];
+  tcHeaders.forEach(function(item) {
+    sheet.getRange(7, item[0], 2, 1).merge()
+      .setValue(item[1])
+      .setBackground(C.HEAD_BG).setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true);
+  });
+
+  // PoC 날짜 범위 + Status + 비고 헤더
+  POC_LIST.forEach(function(poc) {
+    var sc = poc.startCol;
+    // K~N 병합 (7행): 날짜
+    sheet.getRange(7, sc, 1, 4).merge()
+      .setValue('- mm/dd ~ mm/dd (FW 버전-UI 리비전)')
+      .setBackground(C.HEAD_BG).setFontSize(9)
+      .setHorizontalAlignment('left').setVerticalAlignment('middle');
+    // K8: Status
+    sheet.getRange(8, sc)
+      .setValue('Status')
+      .setBackground(C.HEAD_BG).setFontWeight('bold').setFontSize(9)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+    // L~N 병합 (8행): 비고
+    sheet.getRange(8, sc+1, 1, 3).merge()
+      .setValue('비고')
+      .setBackground(C.HEAD_BG).setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  });
+
+  // 열 너비 설정 (원본 기준)
+  sheet.setColumnWidth(1, 13);   // A
+  sheet.setColumnWidth(2, 112);  // B TC ID
+  sheet.setColumnWidth(3, 98);   // C JIRA
+  sheet.setColumnWidth(4, 142);  // D 대분류
+  sheet.setColumnWidth(5, 98);   // E 중분류
+  sheet.setColumnWidth(6, 98);   // F 소분류
+  sheet.setColumnWidth(7, 248);  // G 시험항목
+  sheet.setColumnWidth(8, 142);  // H Pre-Condition
+  sheet.setColumnWidth(9, 267);  // I 시험절차
+  sheet.setColumnWidth(10, 259); // J 주요점검항목
+  POC_LIST.forEach(function(poc) {
+    var sc = poc.startCol;
+    sheet.setColumnWidth(sc,   95);  // Status
+    sheet.setColumnWidth(sc+1, 67);  // 비고
+    sheet.setColumnWidth(sc+2, 95);
+    sheet.setColumnWidth(sc+3, 67);
+  });
+
+  // 행 고정
+  sheet.setFrozenRows(8);
+  sheet.setFrozenColumns(2);
+}
+
+// ── TC 데이터 행 작성 ──
+function writeTC(sheet, tcData) {
+  var dv = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Passed','Con-Passed','Failed','Reopen','N/E','Blocked(N/A)','Rejected','Deleted'], true)
+    .build();
+
+  tcData.forEach(function(tc, idx) {
+    var row = DATA_START + idx;
+    var bg  = (idx % 2 === 0) ? '#FFFFFF' : '#F2F7FB';
+
+    // TC 정보 (B~J)
+    var vals = [
+      [2, tc.tc_id],
+      [3, tc.jira || ''],
+      [4, tc.category_large || ''],
+      [5, tc.category_mid   || ''],
+      [6, tc.category_small || ''],
+      [7, tc.test_item      || ''],
+      [8, tc.precondition   || ''],
+      [9, tc.test_steps     || ''],
+      [10,tc.expected_result|| ''],
+    ];
+    vals.forEach(function(item) {
+      var cell = sheet.getRange(row, item[0]);
+      cell.setValue(item[1]).setBackground(bg).setFontSize(9)
+        .setVerticalAlignment('top').setWrap(true);
+      if (item[0] === 2) cell.setFontWeight('bold').setFontColor('#0070C0').setHorizontalAlignment('center');
+      else if (item[0] === 3) cell.setFontColor('#7030A0').setHorizontalAlignment('left');
+      else if (item[0] <= 6) cell.setHorizontalAlignment('center');
+      else cell.setHorizontalAlignment('left');
     });
 
-    const data = await res.json();
-    const txt = data.candidates[0].content.parts[0].text;
-    const match = txt.match(/\{[\s\S]*\}/);
-    
-    if (match) {
-      currentPayload = JSON.parse(match[0]);
-      render(currentPayload.tcData);
-      document.getElementById('sendBtn').style.display = 'block';
-      document.getElementById('resultCard').style.display = 'block';
+    // PoC Status + 비고
+    POC_LIST.forEach(function(poc) {
+      var sc = poc.startCol;
+      // Status
+      var statusCell = sheet.getRange(row, sc);
+      statusCell.setValue('N/E').setBackground(bg).setFontSize(9)
+        .setHorizontalAlignment('center').setVerticalAlignment('middle')
+        .setDataValidation(dv);
+      // 비고 병합
+      sheet.getRange(row, sc+1, 1, 3).merge()
+        .setBackground(bg).setFontSize(9).setVerticalAlignment('top');
+    });
+
+    sheet.setRowHeight(row, 26);
+  });
+}
+
+// ── 메인 doPost ──
+function doPost(e) {
+  try {
+    var payload       = JSON.parse(e.postData.contents);
+    var spreadsheetId = payload.spreadsheetId;
+    var sheetName     = payload.sheetName || ('TC_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd'));
+    var jiraTitle     = payload.jiraTitle || '';
+    var tcData        = payload.tcData    || [];
+
+    // 웹앱 실행 시 getActiveSpreadsheet() 불가 → openById 사용
+    var SHEET_ID = '1pl8pGt944mhtWa0TzbsFrdru5Eo3EeB3M8H15KjJJck';
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+
+    // 동일 이름 시트 처리
+    var finalName = sheetName;
+    if (ss.getSheetByName(finalName)) {
+      var n = 2;
+      while (ss.getSheetByName(finalName + '_' + n)) n++;
+      finalName = finalName + '_' + n;
     }
-  } catch (e) {
-    alert('오류 발생: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'TC 생성하기';
+
+    var sheet = ss.insertSheet(finalName);
+
+    buildHeader(sheet, jiraTitle);
+    writeTC(sheet, tcData);
+
+    ss.setActiveSheet(sheet);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status:'ok', sheetName:finalName, count:tcData.length }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status:'error', message:err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-function render(data) {
-  let h = '<table><thead><tr><th>ID</th><th>항목</th><th>기대결과</th></tr></thead><tbody>';
-  data.forEach(d => h += `<tr><td>${d.tc_id}</td><td>${d.test_item}</td><td>${d.expected_result}</td></tr>`);
-  document.getElementById('tableOut').innerHTML = h + '</tbody></table>';
-}
+function doGet(e) {
+  var callback = (e && e.parameter && e.parameter.callback) ? e.parameter.callback : null;
 
-// JSONP 통신으로 보안 오류(CORS)를 완벽 우회
-function sendToSheet() {
-  const url = document.getElementById('scriptUrl').value;
-  if(!url) return alert('Apps Script URL을 입력하세요.');
-  
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = true;
-  btn.textContent = '시트로 전송 중...';
-
-  const callbackName = 'jsonp_cb_' + Date.now();
-  window[callbackName] = function(res) {
-    btn.disabled = false;
-    btn.textContent = '🚀 구글 시트로 자동 전송';
-    if(res.status === 'ok') {
-      alert('✅ 전송 완료! 시트 하단에 새로운 탭이 생성되었습니다.');
-    } else {
-      alert('❌ 오류: ' + res.message);
+  // 데이터 없으면 상태 확인
+  if (!e || !e.parameter || !e.parameter.data) {
+    var msg = JSON.stringify({ status:'ok', message:'TC Generator 정상 동작 중' });
+    if (callback) {
+      return ContentService.createTextOutput(callback + '(' + msg + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
     }
-    delete window[callbackName];
-    document.body.removeChild(script);
-  };
+    return ContentService.createTextOutput(msg).setMimeType(ContentService.MimeType.JSON);
+  }
 
-  const script = document.createElement('script');
-  const dataParam = encodeURIComponent(JSON.stringify(currentPayload));
-  script.src = `${url}?callback=${callbackName}&data=${dataParam}`;
-  document.body.appendChild(script);
+  try {
+    var payload       = JSON.parse(decodeURIComponent(e.parameter.data));
+    var spreadsheetId = payload.spreadsheetId;
+    var sheetName     = payload.sheetName || ('TC_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd'));
+    var jiraTitle     = payload.jiraTitle || '';
+    var tcData        = payload.tcData    || [];
+
+    // 웹앱 실행 시 getActiveSpreadsheet() 불가 → openById 사용
+    var SHEET_ID = '1pl8pGt944mhtWa0TzbsFrdru5Eo3EeB3M8H15KjJJck';
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+
+    var finalName = sheetName;
+    if (ss.getSheetByName(finalName)) {
+      var n = 2;
+      while (ss.getSheetByName(finalName + '_' + n)) n++;
+      finalName = finalName + '_' + n;
+    }
+
+    var sheet = ss.insertSheet(finalName);
+    buildHeader(sheet, jiraTitle);
+    writeTC(sheet, tcData);
+    ss.setActiveSheet(sheet);
+
+    var result = JSON.stringify({ status:'ok', sheetName:finalName, count:tcData.length });
+    if (callback) {
+      return ContentService.createTextOutput(callback + '(' + result + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    var errResult = JSON.stringify({ status:'error', message:err.message });
+    if (callback) {
+      return ContentService.createTextOutput(callback + '(' + errResult + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(errResult).setMimeType(ContentService.MimeType.JSON);
+  }
 }
-</script>
-</body>
-</html>
