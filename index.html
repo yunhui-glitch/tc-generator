@@ -266,7 +266,7 @@ async function copyToClipboard() {
     tc.test_steps||'', tc.expected_result||''
   ].map(v => v.replace(/\t/g,' ').replace(/\n/g,' / ')).join('\t'));
 
-  const tsv = [headers.join('\t'), ...rows].join('\n');
+  const tsv = rows.join('\n');
 
   try {
     await navigator.clipboard.writeText(tsv);
