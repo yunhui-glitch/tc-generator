@@ -3,28 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TC 자동 생성기 (엑셀 복사형)</title>
+<title>TC 자동 생성기 (엑셀 복사 최적화)</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--border:rgba(255,255,255,0.08);--accent:#4f8fff;--text:#e8eaf0;--text2:#8b90a8;--success:#3ecf8e;--danger:#f43f5e}
+  :root{--bg:#0f1117;--surface:#1a1d27;--border:rgba(255,255,255,0.08);--accent:#4f8fff;--text:#e8eaf0;--text2:#8b90a8;--success:#3ecf8e}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);padding:20px;line-height:1.6}
-  .container{max-width:1200px;margin:0 auto}
-  header{margin-bottom:30px;text-align:center}
+  .container{max-width:1100px;margin:0 auto}
   .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
-  .input-group{margin-bottom:15px}
+  header{text-align:center;margin-bottom:30px}
   label{display:block;font-size:14px;color:var(--text2);margin-bottom:8px}
-  input,textarea{width:100%;background:#0a0c10;border:1px solid var(--border);border-radius:8px;padding:12px;color:#fff;font-family:inherit}
-  textarea{height:150px;resize:vertical}
-  .btn-group{display:flex;gap:10px;margin-top:20px}
-  button{flex:1;padding:14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:0.2s}
-  #generateBtn{background:var(--accent);color:#fff}
+  input,textarea{width:100%;background:#0a0c10;border:1px solid var(--border);border-radius:8px;padding:12px;color:#fff;margin-bottom:15px}
+  textarea{height:160px;resize:vertical}
+  .btn-group{display:flex;gap:10px}
+  button{flex:1;padding:15px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:0.2s}
+  #genBtn{background:var(--accent);color:#fff}
   #copyBtn{background:var(--success);color:#fff;display:none}
-  #resultArea{margin-top:20px;display:none}
-  table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}
   th,td{border:1px solid var(--border);padding:10px;text-align:left}
   th{background:rgba(255,255,255,0.05)}
-  .pre{white-space:pre-wrap;word-break:break-all}
 </style>
 </head>
 <body>
@@ -32,101 +29,96 @@
 <div class="container">
   <header>
     <h1>TC 자동 생성기</h1>
-    <p style="color:var(--text2)">Gemini API를 이용해 테스트케이스를 생성하고 엑셀에 바로 붙여넣으세요.</p>
+    <p style="color:var(--text2)">Failed to fetch 오류 없이 엑셀로 바로 복사하세요.</p>
   </header>
 
   <div class="card">
-    <div class="input-group">
-      <label>Gemini API Key</label>
-      <input type="password" id="geminiKey" placeholder="AIza...">
-    </div>
-    <div class="input-group">
-      <label>기능 설명 또는 요구사항</label>
-      <textarea id="promptInput" placeholder="테스트케이스를 생성할 기능의 상세 설명을 입력하세요."></textarea>
-    </div>
+    <label>Gemini API Key</label>
+    <input type="password" id="apiKey" placeholder="AIza... 입력">
+    
+    <label>테스트할 기능 설명</label>
+    <textarea id="promptInput" placeholder="예: 로그인 페이지 유효성 검사 등"></textarea>
+    
     <div class="btn-group">
-      <button id="generateBtn" onclick="generateTC()">TC 생성하기</button>
-      <button id="copyBtn" onclick="copyForExcel()">📋 엑셀용으로 복사</button>
+      <button id="genBtn" onclick="generate()">TC 생성하기</button>
+      <button id="copyBtn" onclick="copyExcel()">📋 엑셀용으로 복사하기</button>
     </div>
   </div>
 
-  <div id="resultArea" class="card">
-    <h3>생성 결과 미리보기</h3>
-    <div id="tableContainer"></div>
+  <div id="resultCard" class="card" style="display:none">
+    <h3>미리보기 (상단 버튼을 눌러 복사하세요)</h3>
+    <div id="tableOut"></div>
   </div>
 </div>
 
 <script>
-let currentTCData = [];
+let tcData = [];
 
-async function generateTC() {
-  const key = document.getElementById('geminiKey').value;
-  const prompt = document.getElementById('promptInput').value;
-  const btn = document.getElementById('generateBtn');
+async function generate() {
+  const key = document.getElementById('apiKey').value;
+  const input = document.getElementById('promptInput').value;
+  const btn = document.getElementById('genBtn');
 
-  if(!key || !prompt) return alert('API Key와 내용을 입력해주세요.');
+  if(!key || !input) return alert('모든 항목을 입력해주세요.');
 
   btn.disabled = true;
-  btn.textContent = '생성 중...';
+  btn.textContent = 'AI 분석 중...';
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt + "\n\n응답은 반드시 다음 형식을 포함한 JSON 배열이어야 함: [{tc_id, jira, category_large, category_mid, category_small, test_item, precondition, test_steps, expected_result}]" }]}]
+        contents: [{ parts: [{ text: input + "\n\nJSON 배열 형식으로 출력: [{tc_id, jira, category_large, category_mid, category_small, test_item, precondition, test_steps, expected_result}]" }]}]
       })
     });
 
-    const data = await response.json();
-    const text = data.candidates[0].content.parts[0].text;
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const data = await res.json();
+    const txt = data.candidates[0].content.parts[0].text;
+    const match = txt.match(/\[[\s\S]*\]/);
     
-    if (jsonMatch) {
-      currentTCData = JSON.parse(jsonMatch[0]);
-      renderTable(currentTCData);
+    if (match) {
+      tcData = JSON.parse(match[0]);
+      render(tcData);
       document.getElementById('copyBtn').style.display = 'block';
-      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('resultCard').style.display = 'block';
     }
   } catch (e) {
-    alert('오류 발생: ' + e.message);
+    alert('오류가 발생했습니다. API 키를 확인해주세요.');
   } finally {
     btn.disabled = false;
     btn.textContent = 'TC 생성하기';
   }
 }
 
-function renderTable(data) {
-  let html = `<table><thead><tr><th>ID</th><th>테스트 항목</th><th>기대 결과</th></tr></thead><tbody>`;
-  data.forEach(item => {
-    html += `<tr><td>${item.tc_id}</td><td>${item.test_item}</td><td>${item.expected_result}</td></tr>`;
+function render(data) {
+  let h = '<table><thead><tr><th>ID</th><th>테스트 항목</th><th>기대 결과</th></tr></thead><tbody>';
+  data.forEach(d => {
+    h += `<tr><td>${d.tc_id}</td><td>${d.test_item}</td><td>${d.expected_result}</td></tr>`;
   });
-  html += `</tbody></table>`;
-  document.getElementById('tableContainer').innerHTML = html;
+  document.getElementById('tableOut').innerHTML = h + '</tbody></table>';
 }
 
-function copyForExcel() {
-  if (currentTCData.length === 0) return;
+function copyExcel() {
+  if (tcData.length === 0) return;
 
-  // 엑셀용 탭 구분자 형식 생성
-  const header = "ID\tJira\t대분류\t중분류\t소분류\t테스트 항목\t사전 조건\t테스트 단계\t기대 결과\n";
-  const rows = currentTCData.map(tc => {
+  const head = "ID\tJira\t대분류\t중분류\t소분류\t테스트 항목\t사전 조건\t테스트 단계\t기대 결과\n";
+  const body = tcData.map(t => {
     return [
-      tc.tc_id, tc.jira, tc.category_large, tc.category_mid, tc.category_small,
-      tc.test_item, tc.precondition, tc.test_steps, tc.expected_result
+      t.tc_id, t.jira, t.category_large, t.category_mid, t.category_small,
+      t.test_item, t.precondition, t.test_steps, t.expected_result
     ].map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join('\t');
   }).join('\n');
 
-  const textArea = document.createElement("textarea");
-  textArea.value = header + rows;
-  document.body.appendChild(textArea);
-  textArea.select();
+  const el = document.createElement("textarea");
+  el.value = head + body;
+  document.body.appendChild(el);
+  el.select();
   document.execCommand('copy');
-  document.body.removeChild(textArea);
+  document.body.removeChild(el);
 
-  alert('✅ 복사되었습니다! 엑셀이나 구글 시트에 Ctrl+V로 붙여넣으세요.');
+  alert('✅ 복사 완료! 엑셀이나 구글 시트에 Ctrl+V 하세요.');
 }
 </script>
-
 </body>
 </html>
