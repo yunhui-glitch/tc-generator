@@ -430,10 +430,8 @@ document.addEventListener('keydown',ev=>{if(ev.ctrlKey&&ev.key==='Enter')generat
 (function(){
   const savedKey = localStorage.getItem('gemini_key');
   const savedScript = localStorage.getItem('script_url');
-  const savedSheet = localStorage.getItem('sheet_url');
   if(savedKey) { document.getElementById('geminiKey').value=savedKey; document.getElementById('geminiDot').className='dot ok'; }
   if(savedScript) { document.getElementById('scriptUrl').value=savedScript; document.getElementById('scriptDot').className='dot ok'; }
-  if(savedSheet) document.getElementById('sheetUrl').value=savedSheet;
 })();
 
 // 입력 시 localStorage에 저장
@@ -444,9 +442,6 @@ document.getElementById('geminiKey').addEventListener('input',ev=>{
 document.getElementById('scriptUrl').addEventListener('input',ev=>{
   document.getElementById('scriptDot').className='dot'+(ev.target.value.startsWith('https://')?' ok':'');
   localStorage.setItem('script_url', ev.target.value);
-});
-document.getElementById('sheetUrl').addEventListener('input',ev=>{
-  localStorage.setItem('sheet_url', ev.target.value);
 });
 </script>
 </body>
