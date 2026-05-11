@@ -73,10 +73,7 @@
       <div class="dot" id="geminiDot"></div>
       <input type="password" id="geminiKey" placeholder="Gemini API Key (AIza...)" />
     </div>
-    <div class="key-pill">
-      <div class="dot" id="scriptDot"></div>
-      <input type="text" id="scriptUrl" placeholder="Apps Script 웹앱 URL" style="width:220px" />
-    </div>
+
   </div>
 </header>
 
@@ -256,11 +253,9 @@ async function generateTC() {
 
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
-  const scriptUrl = document.getElementById('scriptUrl').value.trim();
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz2DrPf5aenFYwFLvCtv5fMPxCkbSF-xGTPqW5kT03MsOpWCHEwHNSHpzZvhvYo5R7B4A/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
-
-  if (!scriptUrl) { showToast('❗ Apps Script 웹앱 URL을 입력해주세요', 'error'); return; }
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
@@ -283,7 +278,6 @@ async function uploadToSheets() {
 
     const result = await res.json();
     if (result.status === 'ok') {
-      document.getElementById('scriptDot').className = 'dot ok';
       setStatus(`구글 시트 업로드 완료 — "${result.sheetName}" 탭`, true);
       showToast(`📊 "${result.sheetName}" 탭으로 업로드 완료!`, 'success');
     } else {
@@ -429,19 +423,13 @@ document.addEventListener('keydown',ev=>{if(ev.ctrlKey&&ev.key==='Enter')generat
 // localStorage에서 저장된 값 불러오기
 (function(){
   const savedKey = localStorage.getItem('gemini_key');
-  const savedScript = localStorage.getItem('script_url');
   if(savedKey) { document.getElementById('geminiKey').value=savedKey; document.getElementById('geminiDot').className='dot ok'; }
-  if(savedScript) { document.getElementById('scriptUrl').value=savedScript; document.getElementById('scriptDot').className='dot ok'; }
 })();
 
 // 입력 시 localStorage에 저장
 document.getElementById('geminiKey').addEventListener('input',ev=>{
   document.getElementById('geminiDot').className='dot'+(ev.target.value.startsWith('AIza')?' ok':'');
   localStorage.setItem('gemini_key', ev.target.value);
-});
-document.getElementById('scriptUrl').addEventListener('input',ev=>{
-  document.getElementById('scriptDot').className='dot'+(ev.target.value.startsWith('https://')?' ok':'');
-  localStorage.setItem('script_url', ev.target.value);
 });
 </script>
 </body>
