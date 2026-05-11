@@ -100,10 +100,7 @@
       <div class="fg"><label>TC ID 접두사</label><input type="text" id="tcPrefix" value="TC-001" /></div>
       <div class="fg"><label>대분류</label><input type="text" id="category" value="EPG" /></div>
     </div>
-    <div>
-      <label>구글 시트 URL</label>
-      <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." />
-    </div>
+
     <div>
       <label>시트 탭 이름</label>
       <input type="text" id="sheetName" placeholder="예: TC_EPG_20250511 (미입력 시 자동)" />
@@ -260,23 +257,18 @@ async function generateTC() {
 // ── 구글 시트 업로드 (Apps Script POST) ──
 async function uploadToSheets() {
   const scriptUrl = document.getElementById('scriptUrl').value.trim();
-  const sheetUrl  = document.getElementById('sheetUrl').value.trim();
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
 
   if (!scriptUrl) { showToast('❗ Apps Script 웹앱 URL을 입력해주세요', 'error'); return; }
-  if (!sheetUrl)  { showToast('❗ 구글 시트 URL을 입력해주세요', 'error'); return; }
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
-
-  const idMatch = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-  if (!idMatch) { showToast('❗ 올바른 구글 시트 URL을 입력해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
   setStatus('업로드 중...', false);
 
   try {
+    // spreadsheetId 제거 — Apps Script가 getActiveSpreadsheet()로 자동 처리
     const payload = {
-      spreadsheetId: idMatch[1],
       sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
       jiraTitle,
       tcData
