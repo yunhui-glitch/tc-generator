@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TC 자동 생성기</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#21253a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--accent:#4f8fff;--accent2:#7c5cfc;--text:#e8eaf0;--text2:#8b90a8;--text3:#555a72;--success:#3ecf8e;--danger:#f43f5e}
@@ -38,7 +37,6 @@
   .btn-group{display:flex;gap:8px;flex-shrink:0}
   .btn-sm{padding:6px 14px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s;font-family:'Pretendard',sans-serif;white-space:nowrap}
   .btn-sm:hover{background:rgba(255,255,255,.06)}.btn-sm:disabled{opacity:.3;cursor:not-allowed}
-  .btn-sm.blue{background:rgba(79,143,255,.15);border-color:rgba(79,143,255,.4);color:var(--accent)}
   .btn-sm.green{background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.35);color:var(--success)}
   .btn-sm.purple{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.35);color:#a78bfa}
   .btn-sm.green:hover{background:rgba(62,207,142,.2)}
@@ -58,32 +56,15 @@
   .spinner{width:34px;height:34px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .loading-text{font-size:13px;color:var(--text2)}
-
-  /* ── [수정 1] 취소 버튼 스타일 ── */
-  .btn-cancel{
-    padding:7px 20px;border-radius:7px;
-    border:1px solid rgba(244,63,94,.4);
-    background:rgba(244,63,94,.12);
-    color:var(--danger);font-size:12px;font-weight:500;
-    cursor:pointer;font-family:'Pretendard',sans-serif;
-    transition:background .15s;
-  }
-  .btn-cancel:hover{background:rgba(244,63,94,.22);}
-
+  .btn-cancel{padding:7px 20px;border-radius:7px;border:1px solid rgba(244,63,94,.4);background:rgba(244,63,94,.12);color:var(--danger);font-size:12px;font-weight:500;cursor:pointer;font-family:'Pretendard',sans-serif;transition:background .15s}
+  .btn-cancel:hover{background:rgba(244,63,94,.22)}
   .status-bar{padding:7px 1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text3);background:var(--surface);flex-shrink:0}
   .sdot{width:6px;height:6px;border-radius:50%;background:var(--text3)}.sdot.ok{background:var(--success)}
   .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);display:none;align-items:center;gap:10px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.4)}
   .toast.show{display:flex;animation:slideUp .2s ease}
   .toast.success{border-color:rgba(62,207,142,.35)}.toast.error{border-color:rgba(244,63,94,.35)}
   @keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
-
-  /* ── [수정 2] thinking 배지 ── */
-  .thinking-badge{
-    display:inline-flex;align-items:center;gap:4px;
-    font-size:10px;padding:2px 7px;border-radius:10px;
-    background:rgba(124,92,252,.15);color:#a78bfa;
-    border:1px solid rgba(124,92,252,.3);margin-left:6px;
-  }
+  .thinking-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(124,92,252,.15);color:#a78bfa;border:1px solid rgba(124,92,252,.3);margin-left:6px}
 </style>
 </head>
 <body>
@@ -101,8 +82,7 @@
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <div class="loading-text" id="loadingText">처리 중...</div>
-    <!-- [수정 1] 취소 버튼 추가 -->
-    <button class="btn-cancel" id="cancelBtn" onclick="cancelGenerate()">✕ 취소</button>
+    <button class="btn-cancel" onclick="cancelGenerate()">✕ 취소</button>
   </div>
 
   <div class="input-panel">
@@ -123,8 +103,6 @@
       <label>시트 탭 이름</label>
       <input type="text" id="sheetName" placeholder="예: TC_EPG_20250511 (미입력 시 자동)" />
     </div>
-
-    <!-- [수정 2·3] 모델 선택 드롭다운 업데이트 -->
     <div>
       <label>
         Gemini 모델
@@ -132,20 +110,18 @@
       </label>
       <select id="modelSelect" onchange="onModelChange()">
         <option value="gemini-2.5-flash">gemini-2.5-flash — 무료 · 10 RPM · 추천</option>
-        <option value="gemini-2.5-flash-lite-preview">gemini-2.5-flash-lite — 무료 · 15 RPM · 가장 빠름</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite — 무료 · 15 RPM · 가장 빠름</option>
         <option value="gemini-2.5-pro">gemini-2.5-pro — 무료 · 5 RPM · 정확도↑</option>
       </select>
       <div id="modelDesc" style="margin-top:5px;font-size:11px;color:var(--text3);line-height:1.5"></div>
     </div>
-
-    <div style="font-size:11px;color:var(--success);padding:2px 0">✅ 팀 양식 내장됨</div>
     <button class="btn-generate" id="generateBtn" onclick="generateTC()">✨ TC 초안 생성</button>
     <hr class="divider">
     <div class="tip-box">
       <strong>📌 사용 방법</strong><br>
       1. <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini API 키 무료 발급</a><br>
       2. 시나리오 입력 → TC 생성<br>
-      3. 📊 구글 시트에 추가 클릭<br><br>
+      3. 📋 내용 복사 또는 📊 구글 시트에 추가<br><br>
       <strong>⌨ 단축키</strong><br>
       Ctrl+Enter — TC 생성
     </div>
@@ -155,7 +131,6 @@
     <div class="result-bar">
       <div class="result-meta" id="resultMeta">시나리오를 입력하고 생성 버튼을 눌러주세요</div>
       <div class="btn-group">
-        <button class="btn-sm blue" id="excelBtn" onclick="downloadExcel()" disabled>⬇ Excel</button>
         <button class="btn-sm purple" id="copyBtn" onclick="copyToClipboard()" disabled>📋 내용 복사</button>
         <button class="btn-sm green" id="sheetsBtn" onclick="uploadToSheets()" disabled>📊 구글 시트에 추가</button>
       </div>
@@ -177,25 +152,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 팀 양식 템플릿 내장 ──
-const TEMPLATE_B64 = '';  // 실제 base64 값 또는 빈 문자열로 유지
-let templateArrayBuffer = null;
-(function(){
-  try {
-    if (!TEMPLATE_B64) return;
-    const bin = atob(TEMPLATE_B64);
-    const bytes = new Uint8Array(bin.length);
-    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-    templateArrayBuffer = bytes.buffer;
-  } catch(e) { console.warn('템플릿 로드 실패', e); }
-})();
-
 let tcData = [];
-
-// ── [수정 1] AbortController 전역 변수 ──
 let currentAbortController = null;
 
-// ── 모델별 설정 맵 (무료 티어 3종) ──
 const MODEL_CONFIG = {
   'gemini-2.5-flash': {
     desc: '✅ 무료 · 10 RPM / 500 RPD · 속도·품질 균형 — TC 생성 기본 추천',
@@ -208,7 +167,7 @@ const MODEL_CONFIG = {
       response_mime_type: 'application/json'
     }
   },
-  'gemini-2.5-flash-lite-preview': {
+  'gemini-2.5-flash-lite': {
     desc: '✅ 무료 · 15 RPM / 1,000 RPD · 하루 한도가 가장 넉넉 — 반복 생성에 유리',
     thinking: false,
     jsonMode: true,
@@ -222,7 +181,7 @@ const MODEL_CONFIG = {
   'gemini-2.5-pro': {
     desc: '✅ 무료 · 5 RPM / 100 RPD · Thinking 활성 — 복잡한 시나리오에 정확도↑',
     thinking: true,
-    jsonMode: false,  // thinking과 충돌 — JSON mode 미사용
+    jsonMode: false,
     generationConfig: {
       temperature: 0.3,
       maxOutputTokens: 16384,
@@ -237,8 +196,6 @@ function onModelChange() {
   document.getElementById('modelDesc').textContent = cfg.desc;
   document.getElementById('thinkingBadge').style.display = cfg.thinking ? 'inline-flex' : 'none';
 }
-
-// 페이지 로드 시 초기 모델 설명 표시
 onModelChange();
 
 const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
@@ -281,7 +238,6 @@ async function generateTC() {
     document.getElementById('sheetName').value = `TC_${category}_${today}`;
   }
 
-  // ── [수정 1] 이전 요청 취소 후 새 AbortController 생성 ──
   if (currentAbortController) currentAbortController.abort();
   currentAbortController = new AbortController();
   const signal = currentAbortController.signal;
@@ -291,14 +247,12 @@ async function generateTC() {
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    // ── [수정 2] 모델별 generationConfig 분기 적용 ──
     const modelCfg = MODEL_CONFIG[model] || MODEL_CONFIG['gemini-2.5-flash'];
 
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal,  // [수정 1] AbortSignal 연결
+      signal,
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: [{ parts: [{ text: `TC ID 접두사: ${prefix}\n대분류: ${category}\n\n=== 시나리오 ===\n${scenario}` }] }],
@@ -308,7 +262,6 @@ async function generateTC() {
 
     if (!res.ok) {
       const err = await res.json();
-      // API 오류 유형 분류
       const msg = err.error?.message || `HTTP ${res.status}`;
       if (res.status === 400) throw new Error(`요청 오류: ${msg}`);
       if (res.status === 403 || res.status === 401) throw new Error(`API 키 오류: 키를 확인해주세요`);
@@ -322,12 +275,10 @@ async function generateTC() {
 
     let parsed = null;
     if (modelCfg.jsonMode) {
-      // JSON mode: 코드블록 없이 바로 파싱
       try { parsed = JSON.parse(raw); } catch(e) {
         throw new Error('데이터 파싱 실패. 시나리오를 더 구체적으로 입력해보세요.');
       }
     } else {
-      // Pro(thinking): 코드블록 제거 후 fallback 파싱
       const cleaned = raw.replace(/```json|```/g, '').trim();
       const matches = [...cleaned.matchAll(/\[[\s\S]*?\]/g)];
       for (const m of matches) {
@@ -340,17 +291,14 @@ async function generateTC() {
     tcData = parsed.map(tc => ({ ...tc, jira: '' }));
     renderTable(tcData);
     document.getElementById('resultMeta').innerHTML = `<strong>${tcData.length}개 TC</strong> 생성 완료 &nbsp;·&nbsp; ${new Date().toLocaleTimeString('ko-KR')}`;
-    document.getElementById('excelBtn').disabled = false;
     document.getElementById('copyBtn').disabled = false;
     document.getElementById('sheetsBtn').disabled = false;
     document.getElementById('geminiDot').className = 'dot ok';
-    const thinkLabel = modelCfg.thinking ? ' (thinking)' : '';
-    document.getElementById('modelLabel').textContent = model + thinkLabel;
+    document.getElementById('modelLabel').textContent = model + (modelCfg.thinking ? ' (thinking)' : '');
     setStatus(`${tcData.length}개 TC 생성 완료`, true);
     showToast(`✅ TC ${tcData.length}개 생성 완료!`, 'success');
 
   } catch(e) {
-    // [수정 1] 취소된 경우 오류 메시지 표시하지 않음
     if (e.name === 'AbortError') {
       setStatus('생성 취소됨', false);
       showToast('⛔ 생성이 취소되었습니다', '');
@@ -364,14 +312,10 @@ async function generateTC() {
   }
 }
 
-// ── [수정 1] 취소 함수 ──
 function cancelGenerate() {
-  if (currentAbortController) {
-    currentAbortController.abort();
-  }
+  if (currentAbortController) currentAbortController.abort();
 }
 
-// ── 클립보드 복사 ──
 async function copyToClipboard() {
   if (!tcData.length) return;
   const rows = tcData.map(tc => [
@@ -391,7 +335,6 @@ async function copyToClipboard() {
   }
 }
 
-// ── 구글 시트 업로드 ──
 async function uploadToSheets() {
   const scriptUrl = 'https://script.google.com/macros/s/AKfycbwjSjXl19hie1nEHvYaaM6u1WcaVge388prNlMD1U1BEeSbSwDw4UyjY0IZZxY_vTuM/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
@@ -413,7 +356,6 @@ async function uploadToSheets() {
       body: JSON.stringify(payload)
     });
 
-    // 응답 타입 확인 후 파싱
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       throw new Error('Apps Script 응답 오류 (JSON이 아닙니다). 스크립트 배포 상태를 확인해주세요.');
@@ -432,91 +374,6 @@ async function uploadToSheets() {
   } finally {
     showLoading(false);
   }
-}
-
-// ── Excel 다운로드 ──
-async function downloadExcel() {
-  if (!tcData.length) return;
-  const sheetName = document.getElementById('sheetName').value.trim() || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const jiraTitle = document.getElementById('jiraTitle').value.trim();
-  showLoading(true, 'Excel 생성 중...');
-  try {
-    if (templateArrayBuffer) {
-      const wb = new ExcelJS.Workbook();
-      await wb.xlsx.load(templateArrayBuffer);
-      const sampleWs = wb.getWorksheet('Sample');
-      if (!sampleWs) throw new Error('Sample 시트를 찾을 수 없습니다.');
-      const newWs = wb.addWorksheet(sheetName);
-      sampleWs.columns.forEach((col, i) => { if (col.width) newWs.getColumn(i+1).width = col.width; });
-      for (let r = 1; r <= 8; r++) {
-        const srcRow = sampleWs.getRow(r);
-        const dstRow = newWs.getRow(r);
-        dstRow.height = srcRow.height;
-        srcRow.eachCell({ includeEmpty: true }, (cell, colNum) => {
-          const dstCell = dstRow.getCell(colNum);
-          dstCell.value = cell.value;
-          dstCell.style = JSON.parse(JSON.stringify(cell.style));
-        });
-      }
-      sampleWs.model.merges && sampleWs.model.merges.forEach(merge => {
-        try {
-          const match = String(merge).match(/([A-Z]+)(\d+):([A-Z]+)(\d+)/);
-          if (match) { const r1 = parseInt(match[2]); if (r1 <= 8) newWs.mergeCells(String(merge)); }
-        } catch(e) {}
-      });
-      if (jiraTitle) newWs.getCell('B2').value = jiraTitle;
-      tcData.forEach((tc, idx) => {
-        const row = 9 + idx;
-        const srcRow = sampleWs.getRow(9);
-        const dstRow = newWs.getRow(row);
-        dstRow.height = 60;
-        srcRow.eachCell({ includeEmpty: true }, (cell, colNum) => {
-          const dstCell = dstRow.getCell(colNum);
-          dstCell.style = JSON.parse(JSON.stringify(cell.style));
-          dstCell.alignment = { ...dstCell.alignment, vertical: 'top', wrapText: true };
-        });
-        newWs.getCell(row,2).value=tc.tc_id||'';
-        newWs.getCell(row,3).value=tc.jira||'';
-        newWs.getCell(row,4).value=tc.category_large||'';
-        newWs.getCell(row,5).value=tc.category_mid||'';
-        newWs.getCell(row,6).value=tc.category_small||'';
-        newWs.getCell(row,7).value=tc.test_item||'';
-        newWs.getCell(row,8).value=tc.precondition||'';
-        newWs.getCell(row,9).value=tc.test_steps||'';
-        newWs.getCell(row,10).value=tc.expected_result||'';
-        [11,15,19,23,27,31,35].forEach(poc => { try { newWs.mergeCells(row, poc+1, row, poc+3); } catch(e) {} });
-      });
-      const buf = await wb.xlsx.writeBuffer();
-      triggerDownload(buf, sheetName+'.xlsx');
-      showToast('⬇ 팀 양식 Excel 다운로드 완료!', 'success');
-    } else {
-      const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('TC');
-      const hr = ws.addRow(['TC ID','JIRA 번호','대분류','중분류','소분류','시험 항목','Pre-Condition','시험 절차','주요 점검 항목']);
-      hr.eachCell(c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F4E79'}};c.font={bold:true,color:{argb:'FFFFFFFF'},size:9};c.alignment={horizontal:'center',vertical:'middle',wrapText:true};});
-      ws.getRow(1).height=32;
-      tcData.forEach((tc,i)=>{
-        const r=ws.addRow([tc.tc_id,tc.jira||'',tc.category_large||'',tc.category_mid||'',tc.category_small||'',tc.test_item||'',tc.precondition||'',tc.test_steps||'',tc.expected_result||'']);
-        r.eachCell(c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:i%2===0?'FFFFFFFF':'FFF2F7FB'}};c.font={size:9};c.alignment={vertical:'top',wrapText:true};});
-        r.height=60;
-      });
-      ws.columns=[14,16,11,11,14,24,26,36,28].map(w=>({width:w}));
-      const buf=await wb.xlsx.writeBuffer();
-      triggerDownload(buf, sheetName+'.xlsx');
-      showToast('⬇ Excel 다운로드 완료', 'success');
-    }
-  } catch(e) {
-    showToast('❌ Excel 오류: '+e.message, 'error');
-  } finally {
-    showLoading(false);
-  }
-}
-
-function triggerDownload(buffer, filename) {
-  const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
-  URL.revokeObjectURL(url);
 }
 
 function renderTable(data) {
@@ -538,7 +395,7 @@ function renderTable(data) {
 function e(s){
   return String(s||'')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;')  // XSS 보완
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
     .replace(/\n/g,'<br>');
 }
 function showLoading(show,msg){
@@ -550,10 +407,9 @@ function setStatus(msg,ok){document.getElementById('statusText').textContent=msg
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',4000);}
 document.addEventListener('keydown',ev=>{if(ev.ctrlKey&&ev.key==='Enter')generateTC();});
 
-// sessionStorage에서 저장된 키 불러오기 (보안 개선: localStorage → sessionStorage)
 (function(){
   const savedKey = sessionStorage.getItem('gemini_key');
-  if(savedKey) { document.getElementById('geminiKey').value=savedKey; document.getElementById('geminiDot').className='dot ok'; }
+  if(savedKey){ document.getElementById('geminiKey').value=savedKey; document.getElementById('geminiDot').className='dot ok'; }
 })();
 
 document.getElementById('geminiKey').addEventListener('input',ev=>{
