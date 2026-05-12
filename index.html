@@ -146,10 +146,9 @@
     <div>
       <label>모델 선택</label>
       <select id="modelSelect">
-        <option value="gemini-2.0-flash">Gemini 2.0 Flash — 무료 · 권장</option>
-        <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash — 무료 · 최신</option>
-        <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Exp — 무료 · 정교함</option>
-        <option value="gemini-2.5-pro-preview-05-06">Gemini 2.5 Pro — 유료 · 고품질</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash (무료 · 빠름)</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro (정확)</option>
+        <option value="gemini-3-flash-preview">gemini-3-flash-preview (최신)</option>
       </select>
     </div>
 
@@ -359,6 +358,17 @@ ${scenario}
 }
 
 /* ───────────────────────────────────────────────
+   429 카운트다운 대기
+─────────────────────────────────────────────── */
+async function countdown(ms, attempt, total) {
+  const secs = ms / 1000;
+  for (let s = secs; s > 0; s--) {
+    showLoading(true, `요청 한도 초과 — ${s}초 후 재시도합니다... (${attempt}/${total})\n잠시만 기다려 주세요.`);
+    await new Promise(r => setTimeout(r, 1000));
+  }
+}
+
+/* ───────────────────────────────────────────────
    fetchWithRetry - 실패 시 반드시 throw
 ─────────────────────────────────────────────── */
 async function fetchWithRetry(url, opts, retries = 3) {
@@ -368,10 +378,9 @@ async function fetchWithRetry(url, opts, retries = 3) {
       const res = await fetch(url, opts);
       if (res.ok) return res;
       if (res.status === 429) {
-        const wait = 2000 * (i + 1);
-        showLoading(true, `요청 한도 초과, ${wait/1000}초 후 재시도... (${i+1}/${retries})`);
-        await new Promise(r => setTimeout(r, wait));
+        const wait = 5000 * (i + 1); // 5초, 10초, 15초
         lastError = new Error('API 요청 한도 초과 (429)');
+        await countdown(wait, i + 1, retries);
       } else if (res.status === 400) {
         const body = await res.json().catch(() => ({}));
         throw new Error(`API 오류 (400): ${body?.error?.message || '잘못된 요청'}`);
