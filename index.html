@@ -155,7 +155,6 @@
     <div class="result-bar">
       <div class="result-meta" id="resultMeta">시나리오를 입력하고 생성 버튼을 눌러주세요</div>
       <div class="btn-group">
-        <button class="btn-sm blue" id="excelBtn" onclick="downloadExcel()" disabled>⬇ Excel</button>
         <button class="btn-sm purple" id="copyBtn" onclick="copyToClipboard()" disabled>📋 내용 복사</button>
         <button class="btn-sm green" id="sheetsBtn" onclick="uploadToSheets()" disabled>📊 구글 시트에 추가</button>
       </div>
@@ -433,92 +432,6 @@ async function uploadToSheets() {
     showLoading(false);
   }
 }
-
-// ── Excel 다운로드 ──
-async function downloadExcel() {
-  if (!tcData.length) return;
-  const sheetName = document.getElementById('sheetName').value.trim() || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const jiraTitle = document.getElementById('jiraTitle').value.trim();
-  showLoading(true, 'Excel 생성 중...');
-  try {
-    if (templateArrayBuffer) {
-      const wb = new ExcelJS.Workbook();
-      await wb.xlsx.load(templateArrayBuffer);
-      const sampleWs = wb.getWorksheet('Sample');
-      if (!sampleWs) throw new Error('Sample 시트를 찾을 수 없습니다.');
-      const newWs = wb.addWorksheet(sheetName);
-      sampleWs.columns.forEach((col, i) => { if (col.width) newWs.getColumn(i+1).width = col.width; });
-      for (let r = 1; r <= 8; r++) {
-        const srcRow = sampleWs.getRow(r);
-        const dstRow = newWs.getRow(r);
-        dstRow.height = srcRow.height;
-        srcRow.eachCell({ includeEmpty: true }, (cell, colNum) => {
-          const dstCell = dstRow.getCell(colNum);
-          dstCell.value = cell.value;
-          dstCell.style = JSON.parse(JSON.stringify(cell.style));
-        });
-      }
-      sampleWs.model.merges && sampleWs.model.merges.forEach(merge => {
-        try {
-          const match = String(merge).match(/([A-Z]+)(\d+):([A-Z]+)(\d+)/);
-          if (match) { const r1 = parseInt(match[2]); if (r1 <= 8) newWs.mergeCells(String(merge)); }
-        } catch(e) {}
-      });
-      if (jiraTitle) newWs.getCell('B2').value = jiraTitle;
-      tcData.forEach((tc, idx) => {
-        const row = 9 + idx;
-        const srcRow = sampleWs.getRow(9);
-        const dstRow = newWs.getRow(row);
-        dstRow.height = 60;
-        srcRow.eachCell({ includeEmpty: true }, (cell, colNum) => {
-          const dstCell = dstRow.getCell(colNum);
-          dstCell.style = JSON.parse(JSON.stringify(cell.style));
-          dstCell.alignment = { ...dstCell.alignment, vertical: 'top', wrapText: true };
-        });
-        newWs.getCell(row,2).value=tc.tc_id||'';
-        newWs.getCell(row,3).value=tc.jira||'';
-        newWs.getCell(row,4).value=tc.category_large||'';
-        newWs.getCell(row,5).value=tc.category_mid||'';
-        newWs.getCell(row,6).value=tc.category_small||'';
-        newWs.getCell(row,7).value=tc.test_item||'';
-        newWs.getCell(row,8).value=tc.precondition||'';
-        newWs.getCell(row,9).value=tc.test_steps||'';
-        newWs.getCell(row,10).value=tc.expected_result||'';
-        [11,15,19,23,27,31,35].forEach(poc => { try { newWs.mergeCells(row, poc+1, row, poc+3); } catch(e) {} });
-      });
-      const buf = await wb.xlsx.writeBuffer();
-      triggerDownload(buf, sheetName+'.xlsx');
-      showToast('⬇ 팀 양식 Excel 다운로드 완료!', 'success');
-    } else {
-      const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('TC');
-      const hr = ws.addRow(['TC ID','JIRA 번호','대분류','중분류','소분류','시험 항목','Pre-Condition','시험 절차','주요 점검 항목']);
-      hr.eachCell(c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F4E79'}};c.font={bold:true,color:{argb:'FFFFFFFF'},size:9};c.alignment={horizontal:'center',vertical:'middle',wrapText:true};});
-      ws.getRow(1).height=32;
-      tcData.forEach((tc,i)=>{
-        const r=ws.addRow([tc.tc_id,tc.jira||'',tc.category_large||'',tc.category_mid||'',tc.category_small||'',tc.test_item||'',tc.precondition||'',tc.test_steps||'',tc.expected_result||'']);
-        r.eachCell(c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:i%2===0?'FFFFFFFF':'FFF2F7FB'}};c.font={size:9};c.alignment={vertical:'top',wrapText:true};});
-        r.height=60;
-      });
-      ws.columns=[14,16,11,11,14,24,26,36,28].map(w=>({width:w}));
-      const buf=await wb.xlsx.writeBuffer();
-      triggerDownload(buf, sheetName+'.xlsx');
-      showToast('⬇ Excel 다운로드 완료', 'success');
-    }
-  } catch(e) {
-    showToast('❌ Excel 오류: '+e.message, 'error');
-  } finally {
-    showLoading(false);
-  }
-}
-
-function triggerDownload(buffer, filename) {
-  const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
-  URL.revokeObjectURL(url);
-}
-
 function renderTable(data) {
   document.getElementById('tableContainer').innerHTML=`<div class="table-wrap"><table>
     <thead><tr><th>TC ID</th><th>JIRA</th><th>대분류</th><th>중분류</th><th>소분류</th><th>시험 항목</th><th>Pre-Condition</th><th>시험 절차</th><th>주요 점검 항목</th></tr></thead>
