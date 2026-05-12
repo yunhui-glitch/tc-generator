@@ -339,33 +339,39 @@ async function copyToClipboard() {
 }
 
 async function uploadToSheets() {
+  // 배포 후 생성된 새 URL을 여기에 넣으세요
   const scriptUrl = 'https://script.google.com/macros/s/AKfycbzRShbXfSiFjM4c1UE6SA177fS9T1hhRixBSknIkIHBkliqMLuGvU5MC2xUUjVL3TnQ/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
+  
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
+  if (!sheetName) { showToast('❗ 시트 이름을 입력해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
   setStatus('업로드 중...', false);
 
   try {
-    const payload = {
-      sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
-      jiraTitle,
-      tcData
-    };
-    // Apps Script는 no-cors로 호출 — 응답 확인 불가, 성공으로 간주
-    await fetch(scriptUrl, {
+    const payload = { sheetName, jiraTitle, tcData };
+
+    // mode: 'no-cors'를 제거해야 응답을 읽을 수 있습니다.
+    const res = await fetch(scriptUrl, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-    const finalSheetName = payload.sheetName;
-    setStatus(`구글 시트 업로드 완료 — "${finalSheetName}" 탭`, true);
-    showToast(`📊 "${finalSheetName}" 탭으로 업로드 완료! 시트에서 확인해주세요.`, 'success');
+
+    const result = await res.json();
+    
+    if (result.status === 'ok') {
+      setStatus(`📊 "${result.sheetName}" 업로드 완료`, true);
+      showToast(`📊 "${result.sheetName}" 탭으로 업로드 완료!`, 'success');
+    } else {
+      throw new Error(result.message);
+    }
   } catch(e) {
-    showToast('❌ ' + e.message, 'error');
-    setStatus('업로드 오류: ' + e.message, false);
+    console.error(e);
+    showToast(`❌ ${e.message}`, 'error');
+    setStatus('업로드 실패', false);
   } finally {
     showLoading(false);
   }
