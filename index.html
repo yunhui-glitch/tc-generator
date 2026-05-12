@@ -323,9 +323,9 @@ async function copyToClipboard() {
     tc.category_small||'', tc.test_item||'', tc.precondition||'',
     tc.test_steps||'', tc.expected_result||''
   ].map(v => {
-  const clean = v.replace(/\t/g, ' ');
-  return clean.includes('\n') ? `"${clean.replace(/"/g, '""')}"` : clean;
-}).join('\t'));
+    const clean = v.replace(/\t/g, ' ');
+    return clean.includes('\n') ? `"${clean.replace(/"/g, '""')}"` : clean;
+  }).join('\t'));
   const tsv = rows.join('\n');
   try {
     await navigator.clipboard.writeText(tsv);
