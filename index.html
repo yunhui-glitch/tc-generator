@@ -131,9 +131,9 @@
         <span class="thinking-badge" id="thinkingBadge" style="display:none">💡 thinking</span>
       </label>
       <select id="modelSelect" onchange="onModelChange()">
-        <option value="gemini-2.5-flash">gemini-2.5-flash (무료 · 빠름)</option>
-        <option value="gemini-2.5-pro">gemini-2.5-pro (정확 · thinking↑)</option>
-        <option value="gemini-3-flash-preview">gemini-3-flash-preview (최신 · reasoning)</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash — 무료 · 10 RPM · 추천</option>
+        <option value="gemini-2.5-flash-lite-preview">gemini-2.5-flash-lite — 무료 · 15 RPM · 가장 빠름</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro — 무료 · 5 RPM · 정확도↑</option>
       </select>
       <div id="modelDesc" style="margin-top:5px;font-size:11px;color:var(--text3);line-height:1.5"></div>
     </div>
@@ -198,33 +198,30 @@ let currentAbortController = null;
 // ── [수정 2·3] 모델별 설정 맵 ──
 const MODEL_CONFIG = {
   'gemini-2.5-flash': {
-    desc: '무료 티어 지원 · 빠른 응답 · 일반 TC 생성에 최적',
+    desc: '✅ 무료 · 10 RPM / 500 RPD · 속도·품질 균형 — TC 생성 기본 추천',
     thinking: false,
     generationConfig: {
       temperature: 0.3,
       maxOutputTokens: 8192,
-      // 2.5 Flash: thinkingBudget 0으로 thinking 비활성화
+      thinkingConfig: { thinkingBudget: 0 }
+    }
+  },
+  'gemini-2.5-flash-lite-preview': {
+    desc: '✅ 무료 · 15 RPM / 1,000 RPD · 하루 한도가 가장 넉넉 — 반복 생성에 유리',
+    thinking: false,
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 8192,
       thinkingConfig: { thinkingBudget: 0 }
     }
   },
   'gemini-2.5-pro': {
-    desc: 'Thinking 활성화 · 복잡한 시나리오에 높은 정확도',
+    desc: '✅ 무료 · 5 RPM / 100 RPD · Thinking 활성 — 복잡한 시나리오에 정확도↑',
     thinking: true,
     generationConfig: {
       temperature: 0.3,
       maxOutputTokens: 16384,
-      // 2.5 Pro: thinking 활성화 (budget -1 = 동적 할당)
       thinkingConfig: { thinkingBudget: -1 }
-    }
-  },
-  'gemini-3-flash-preview': {
-    desc: 'Gemini 3 시리즈 · Pro급 추론을 Flash 속도로',
-    thinking: true,
-    generationConfig: {
-      temperature: 0.3,
-      maxOutputTokens: 16384,
-      // Gemini 3: thinkingLevel 방식 사용 (low/medium/high)
-      thinkingConfig: { thinkingLevel: 'low' }
     }
   }
 };
