@@ -161,6 +161,7 @@
       <div class="result-meta" id="resultMeta">시나리오를 입력하고 생성 버튼을 눌러주세요</div>
       <div class="btn-group">
         <button class="btn-sm" id="addRowBtn" onclick="addEmptyRow()" disabled>＋ 행 추가</button>
+        <button class="btn-sm purple" id="copyBtn" onclick="copyToClipboard()" disabled>📋 전체 복사</button>
         <button class="btn-sm blue" id="excelBtn" onclick="downloadExcel()" disabled>⬇ Excel</button>
         <button class="btn-sm green" id="sheetsBtn" onclick="openSheetsModal()" disabled>📊 구글 시트</button>
       </div>
@@ -413,6 +414,7 @@ function renderTable(tcs) {
       <td class="pre" contenteditable="true" data-idx="${idx}" data-field="expected_result" onblur="onCellEdit(this)">${escHtml(tc.expected_result)}</td>
       <td>
         <div class="tc-actions">
+          <button class="tc-btn" onclick="copyRow(${idx})" title="클립보드에 복사">⎘</button>
           <button class="tc-btn" onclick="regenerateRow(${idx})" title="이 TC만 재생성">↻</button>
           <button class="tc-btn danger" onclick="deleteRow(${idx})" title="삭제">✕</button>
         </div>
@@ -454,6 +456,50 @@ function addEmptyRow() {
   // 새 행으로 스크롤
   const rows = document.querySelectorAll('#tableContainer tbody tr');
   rows[rows.length - 1]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ───────────────────────────────────────────────
+   전체 복사 (TSV — 구글 시트 Ctrl+V 바로 붙여넣기)
+─────────────────────────────────────────────── */
+async function copyToClipboard() {
+  if (!lastResult.length) return;
+  const headers = ['TC ID','JIRA','대분류','제목','사전 조건','테스트 데이터','테스트 단계','예상 결과'];
+  const jira     = document.getElementById('jiraTitle').value.trim();
+  const category = document.getElementById('category').value.trim();
+  const rows = lastResult.map(tc => [
+    tc.id, jira, category, tc.title,
+    tc.pre_condition, tc.test_data,
+    tc.test_steps, tc.expected_result
+  ].map(v => String(v ?? '').replace(/\t/g,' ').replace(/\n/g,' / ')).join('\t'));
+
+  const tsv = [headers.join('\t'), ...rows].join('\n');
+
+  try {
+    await navigator.clipboard.writeText(tsv);
+    showToast('📋 복사 완료! 구글 시트에서 원하는 셀 클릭 후 Ctrl+V 하세요.', 'success');
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = tsv; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 복사 완료! 구글 시트에서 Ctrl+V 하세요.', 'success');
+  }
+}
+
+/* ───────────────────────────────────────────────
+   행 복사 (클립보드)
+─────────────────────────────────────────────── */
+function copyRow(idx) {
+  const tc = lastResult[idx];
+  const text =
+`[${tc.id}] ${tc.title}
+▪ 사전 조건: ${tc.pre_condition}
+▪ 테스트 데이터: ${tc.test_data}
+▪ 테스트 단계:
+${tc.test_steps}
+▪ 예상 결과: ${tc.expected_result}`;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast(`${tc.id} 복사 완료`, 'success'))
+    .catch(() => showToast('복사 실패 (클립보드 권한 확인)', 'error'));
 }
 
 /* ───────────────────────────────────────────────
@@ -677,7 +723,7 @@ function setStatus(state) {
 }
 
 function enableButtons(enabled) {
-  ['excelBtn','sheetsBtn','addRowBtn'].forEach(id => {
+  ['excelBtn','sheetsBtn','addRowBtn','copyBtn'].forEach(id => {
     document.getElementById(id).disabled = !enabled;
   });
 }
