@@ -132,7 +132,7 @@
       </label>
       <select id="modelSelect" onchange="onModelChange()">
         <option value="gemini-2.5-flash">gemini-2.5-flash — 무료 · 10 RPM · 추천</option>
-        <option value="gemini-2.5-flash-lite-preview">gemini-2.5-flash-lite — 무료 · 15 RPM · 가장 빠름</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite — 무료 · 15 RPM · 가장 빠름</option>>
         <option value="gemini-2.5-pro">gemini-2.5-pro — 무료 · 5 RPM · 정확도↑</option>
       </select>
       <div id="modelDesc" style="margin-top:5px;font-size:11px;color:var(--text3);line-height:1.5"></div>
@@ -208,7 +208,7 @@ const MODEL_CONFIG = {
       response_mime_type: 'application/json'
     }
   },
-  'gemini-2.5-flash-lite-preview': {
+  'gemini-2.5-flash-lite': {
     desc: '✅ 무료 · 15 RPM / 1,000 RPD · 하루 한도가 가장 넉넉 — 반복 생성에 유리',
     thinking: false,
     jsonMode: true,
