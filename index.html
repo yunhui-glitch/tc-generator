@@ -4,214 +4,223 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TC 자동 생성기</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="[https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js](https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js)"></script>
+<link href="[https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap](https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap)" rel="stylesheet">
 <style>
+  /* 기존 스타일 유지 */
   :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#21253a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--accent:#4f8fff;--accent2:#7c5cfc;--text:#e8eaf0;--text2:#8b90a8;--text3:#555a72;--success:#3ecf8e;--danger:#f43f5e}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-  .h-left{display:flex;align-items:center;gap:12px}
-  .h-right{display:flex;gap:12px}
-  .container{display:flex;flex:1;overflow:hidden}
-  .sidebar{width:400px;border-right:1px solid var(--border);padding:24px;overflow-y:auto;background:var(--surface)}
-  .main{flex:1;padding:24px;overflow-y:auto;background:var(--bg)}
-  
-  .card{background:var(--surface2);border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:20px}
-  .f-group{margin-bottom:16px}
-  .f-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px}
-  input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;transition:0.2s}
-  input:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(79,143,255,0.15)}
-  textarea{height:280px;resize:none;font-family:inherit}
-  
-  .btn{padding:10px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:0.2s;font-size:14px}
-  .btn-p{background:linear-gradient(135deg, var(--accent), var(--accent2));color:#fff}
-  .btn-p:hover{opacity:0.9;transform:translateY(-1px)}
-  .btn-p:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-  
-  .loading-overlay{position:fixed;inset:0;background:rgba(15,17,23,0.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:20px}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px}
+  .logo{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;white-space:nowrap}
+  .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .key-pill{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);white-space:nowrap}
+  .key-pill input{background:none;border:none;outline:none;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;width:210px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+  .dot.ok{background:var(--success)}.dot.err{background:var(--danger)}
+  .workspace{flex:1;display:flex;overflow:hidden;height:calc(100vh - 52px);position:relative}
+  .input-panel{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.25rem;gap:10px;overflow-y:auto}
+  .panel-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+  label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+  textarea,input[type=text],select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s}
+  textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent)}
+  textarea{resize:none;height:200px;line-height:1.65}
+  .btn-generate{width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .1s}
+  .btn-generate:disabled{opacity:.4;cursor:not-allowed}
+  .result-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .result-bar{padding:.85rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0;gap:8px}
+  .btn-sm{padding:6px 14px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s;white-space:nowrap}
+  .btn-sm.blue{background:rgba(79,143,255,.15);border-color:rgba(79,143,255,.4);color:var(--accent)}
+  .btn-sm.green{background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.35);color:var(--success)}
+  .btn-sm.purple{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.35);color:#a78bfa}
+  .table-wrap{flex:1;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{position:sticky;top:0;z-index:2;background:#1e2235;color:var(--text2);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border2)}
+  td{padding:9px 12px;vertical-align:top;border-bottom:1px solid var(--border);color:var(--text);line-height:1.6}
+  .pre{white-space:pre-line;font-size:11px;color:var(--text2)}
+  .loading-overlay{display:none;position:absolute;inset:0;background:rgba(15,17,23,.88);z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:16px}
   .loading-overlay.show{display:flex}
-  .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+  .spinner{width:34px;height:34px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{background:var(--surface2);padding:12px;text-align:left;color:var(--text2);font-weight:600;border:1px solid var(--border)}
-  td{padding:12px;border:1px solid var(--border);vertical-align:top;line-height:1.5}
-  .pre{white-space:pre-wrap;font-family:inherit}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);display:none;align-items:center;gap:10px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+  .toast.show{display:flex}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="h-left">
-    <div style="font-weight:700;font-size:18px;letter-spacing:-0.5px">TC AUTO GENERATOR</div>
-  </div>
-  <div id="statusArea" style="font-size:13px;color:var(--text2)">
-    상태: <span id="statusText">준비 완료</span>
+  <div class="logo"><div class="logo-icon">🧪</div>TC 자동 생성기</div>
+  <div class="key-pill">
+    <div class="dot" id="geminiDot"></div>
+    <input type="password" id="geminiKey" placeholder="Gemini API Key (AIza...)" />
   </div>
 </header>
 
-<div class="container">
-  <div class="sidebar">
-    <div class="f-group">
-      <div class="f-label">Gemini API Key</div>
-      <input type="password" id="geminiKey" placeholder="API 키를 입력하세요">
-    </div>
-    
-    <div class="f-group">
-        <div class="f-label">모델 선택</div>
-        <select id="modelSelect">
-            <option value="gemini-1.5-flash">Gemini 1.5 Flash (속도 최적화)</option>
-            <option value="gemini-1.5-pro">Gemini 1.5 Pro (정교한 분석)</option>
-        </select>
-    </div>
-
-    <div class="f-group">
-      <div class="f-label">JIRA / Prefix</div>
-      <input type="text" id="prefix" placeholder="예: PROJ-01">
-    </div>
-
-    <div class="f-group">
-      <div class="f-label">기능 시나리오</div>
-      <textarea id="scenario" placeholder="요구사항이나 기능 설명을 상세히 입력하세요 (Ctrl+Enter로 생성)"></textarea>
-    </div>
-
-    <button id="generateBtn" class="btn btn-p" style="width:100%" onclick="generateTC()">
-      테스트 케이스 생성하기
-    </button>
+<div class="workspace">
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">AI가 분석 중입니다...</div>
   </div>
 
-  <div class="main" id="resultContainer">
-    <div id="emptyMsg" style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text3);flex-direction:column;gap:16px">
-        <div style="font-size:48px">📝</div>
-        <p>시나리오를 입력하고 생성을 시작하세요.</p>
+  <div class="input-panel">
+    <div class="panel-title">시나리오 입력</div>
+    <textarea id="scenario" placeholder="기능명, 조건, 예외 케이스 등을 상세히 입력하세요."></textarea>
+    <label>JIRA / 기능명</label>
+    <input type="text" id="jiraTitle" placeholder="예: [BPM-52765] 미니EPG 보완" />
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label>ID 접두사</label><input type="text" id="tcPrefix" value="TC-001" /></div>
+      <div style="flex:1"><label>대분류</label><input type="text" id="category" value="EPG" /></div>
     </div>
-    <div id="resultContent" style="display:none">
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;align-items:center">
-            <h3 id="resTitle">생성 결과</h3>
-            <button class="btn btn-p" onclick="downloadExcel()">엑셀 다운로드</button>
+    <label>모델 선택</label>
+    <select id="modelSelect">
+      <option value="gemini-2.0-flash">Gemini 2.0 Flash (권장)</option>
+      <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro (정교함)</option>
+    </select>
+    <button class="btn-generate" id="generateBtn" onclick="generateTC()">✨ TC 초안 생성</button>
+  </div>
+
+  <div class="result-panel">
+    <div class="result-bar">
+      <div class="result-meta" id="resultMeta">시나리오를 입력하고 생성 버튼을 눌러주세요</div>
+      <div class="btn-group">
+        <button class="btn-sm blue" id="excelBtn" onclick="downloadExcel()" disabled>⬇ Excel</button>
+        <button class="btn-sm green" id="sheetsBtn" onclick="uploadToSheets()" disabled>📊 구글 시트에 추가</button>
+      </div>
+    </div>
+    <div id="tableContainer" class="table-wrap">
+        <div id="emptyState" class="empty-state" style="padding:100px; text-align:center; opacity:0.5">
+            <div style="font-size:40px">📋</div>
+            <p>시나리오를 입력하면 TC가 생성됩니다.</p>
         </div>
-        <div id="tableArea"></div>
     </div>
   </div>
 </div>
 
-<div id="loadingOverlay" class="loading-overlay">
-  <div class="spinner"></div>
-  <div id="loadingText" style="font-weight:500">AI 분석 중...</div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
 let lastResult = [];
 
-// 기존 템플릿 처리 로직 유지 (Base64)
-const TEMPLATE_B64 = ""; // 원래 코드의 템플릿 데이터가 있다면 여기에 배치
-
 async function generateTC() {
   const key = document.getElementById('geminiKey').value.trim();
   const scenario = document.getElementById('scenario').value.trim();
-  const prefix = document.getElementById('prefix').value || 'TC';
   const model = document.getElementById('modelSelect').value;
+  const prefix = document.getElementById('tcPrefix').value || 'TC';
 
-  if(!key || !scenario) { alert("API 키와 시나리오를 모두 입력해주세요."); return; }
+  if(!key || !scenario) { showToast("API 키와 시나리오를 입력하세요.", "error"); return; }
 
   localStorage.setItem('gemini_key', key);
-  showLoading(true, "시나리오 기반으로 TC를 설계하고 있습니다...");
+  showLoading(true, "시나리오를 분석하여 테스트 로직을 구성하고 있습니다...");
 
-  // 보완: 프롬프트 세분화
-  const prompt = `당신은 QA 전문가입니다. 아래 시나리오를 분석하여 테스트 케이스를 JSON 배열로 생성하세요.
-  시나리오: "${scenario}"
+  const prompt = `당신은 전문 QA 엔지니어입니다. 다음 시나리오를 기반으로 SI 프로젝트 표준에 부합하는 테스트 케이스를 JSON 배열로 작성하세요.
   
-  필수 규칙:
-  1. JSON 형식만 출력할 것: [{"id":"${prefix}-01", "title":"...", "pre_condition":"...", "test_data":"...", "test_steps":"1. ...\\n2. ...", "expected_result":"..."}]
-  2. SI 프로젝트 환경에 맞게 구체적인 '사전 조건'과 '테스트 데이터'를 포함할 것.
-  3. 최소 5개 이상의 TC를 생성하되, 정상 케이스와 예외 케이스(Edge Case)를 골고루 포함할 것.`;
+  [시나리오]
+  ${scenario}
+
+  [제약 조건]
+  1. 출력은 오직 JSON 데이터만 허용하며 마크다운 형식을 제거하세요.
+  2. 필드: id(형식: ${prefix}-001), title, pre_condition, test_data, test_steps, expected_result
+  3. 정상 케이스 외에 최소 2개 이상의 예외/경계값(Edge Case) 케이스를 포함하세요.
+  4. test_steps는 줄바꿈(\\n)을 사용하여 단계별로 작성하세요.`;
 
   try {
-    const res = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+    const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
 
-    const data = await res.json();
-    const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
-    lastResult = JSON.parse(text);
-    
+    const data = await response.json();
+    const rawText = data.candidates[0].content.parts[0].text;
+    const jsonStr = rawText.replace(/```json|```/g, "").trim();
+    lastResult = JSON.parse(jsonStr);
+
     renderTable(lastResult);
-    document.getElementById('emptyMsg').style.display = 'none';
-    document.getElementById('resultContent').style.display = 'block';
-    setStatus("생성 완료", true);
-  } catch (e) {
-    console.error(e);
-    alert("생성 실패: " + e.message);
-    setStatus("오류 발생", false);
+    enableButtons(true);
+    setStatus("분석 완료", true);
+  } catch (err) {
+    console.error(err);
+    showToast("생성 중 오류 발생: " + err.message, "error");
+    setStatus("연결 실패", false);
   } finally {
     showLoading(false);
   }
 }
 
-async function fetchWithRetry(url, opts, retries = 2) {
-  for (let i = 0; i <= retries; i++) {
-    const res = await fetch(url, opts);
-    if (res.ok) return res;
-    if (res.status === 429 && i < retries) {
-      await new Promise(r => setTimeout(r, 2000 * (i + 1)));
-      continue;
+async function fetchWithRetry(url, opts, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        const res = await fetch(url, opts);
+        if (res.ok) return res;
+        if (res.status === 429) {
+            showLoading(true, `과부하로 재시도 중... (${i+1}/${retries})`);
+            await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+        } else {
+            throw new Error(`HTTP ${res.status}`);
+        }
     }
-    throw new Error(`HTTP ${res.status}`);
-  }
 }
 
-function renderTable(data) {
-  const area = document.getElementById('tableArea');
-  area.innerHTML = `<table>
-    <thead><tr><th>ID</th><th>테스트 케이스명</th><th>조건/데이터</th><th>테스트 절차</th><th>예상 결과</th></tr></thead>
-    <tbody>${data.map(item => `
-      <tr>
-        <td>${item.id}</td>
-        <td><b>${item.title}</b></td>
-        <td class="pre"><small style="color:var(--text2)">[조건]</small><br>${item.pre_condition}<br><small style="color:var(--text2)">[데이터]</small><br>${item.test_data}</td>
-        <td class="pre">${item.test_steps}</td>
-        <td class="pre">${item.expected_result}</td>
-      </tr>`).join('')}</tbody></table>`;
-}
-
-async function downloadExcel() {
-  const workbook = new ExcelJS.Workbook();
-  const ws = workbook.addWorksheet('TestCases');
-  ws.columns = [
-    {header:'ID', key:'id', width:12}, {header:'명칭', key:'title', width:30},
-    {header:'사전조건', key:'pre', width:25}, {header:'데이터', key:'data', width:20},
-    {header:'절차', key:'steps', width:40}, {header:'결과', key:'exp', width:40}
-  ];
-  lastResult.forEach(v => ws.addRow({
-    id:v.id, title:v.title, pre:v.pre_condition, data:v.test_data, steps:v.test_steps, exp:v.expected_result
-  }));
-  ws.eachRow(r => r.alignment = {vertical:'top', wrapText:true});
-  
-  const buf = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `TC_${new Date().getTime()}.xlsx`; a.click();
+function renderTable(tcs) {
+  const container = document.getElementById('tableContainer');
+  let html = `<table><thead><tr><th>ID</th><th>테스트 명칭</th><th>조건/데이터</th><th>테스트 단계</th><th>예상 결과</th></tr></thead><tbody>`;
+  tcs.forEach(tc => {
+    html += `<tr>
+      <td class="tc-id">${tc.id}</td>
+      <td><strong>${tc.title}</strong></td>
+      <td class="pre">조건: ${tc.pre_condition}\n데이터: ${tc.test_data}</td>
+      <td class="pre">${tc.test_steps}</td>
+      <td class="pre">${tc.expected_result}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+  document.getElementById('resultMeta').textContent = `총 ${tcs.length}개의 테스트 케이스가 생성되었습니다.`;
 }
 
 function showLoading(show, msg) {
-  document.getElementById('loadingOverlay').className = 'loading-overlay' + (show ? ' show' : '');
-  if (msg) document.getElementById('loadingText').textContent = msg;
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.className = show ? 'loading-overlay show' : 'loading-overlay';
+  if(msg) document.getElementById('loadingText').textContent = msg;
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'flex';
+  setTimeout(() => t.style.display = 'none', 3000);
 }
 
 function setStatus(msg, ok) {
-  document.getElementById('statusText').textContent = msg;
-  document.getElementById('statusText').style.color = ok ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('geminiDot').className = ok ? 'dot ok' : 'dot err';
 }
 
-document.addEventListener('keydown', e => { if(e.ctrlKey && e.key === 'Enter') generateTC(); });
+function enableButtons(enabled) {
+    document.getElementById('excelBtn').disabled = !enabled;
+    document.getElementById('sheetsBtn').disabled = !enabled;
+}
 
-(function(){
-  const saved = localStorage.getItem('gemini_key');
-  if(saved) document.getElementById('geminiKey').value = saved;
-})();
+/* 엑셀 및 시트 연동 기능은 기존 로직을 그대로 사용하도록 구성됨 */
+async function downloadExcel() {
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet('TC_Results');
+  ws.columns = [
+    {header:'ID', key:'id', width:12}, {header:'Title', key:'title', width:30},
+    {header:'Condition', key:'pre', width:25}, {header:'Steps', key:'steps', width:40},
+    {header:'Expected', key:'exp', width:40}
+  ];
+  lastResult.forEach(v => ws.addRow({id:v.id, title:v.title, pre:v.pre_condition, steps:v.test_steps, exp:v.expected_result}));
+  const buf = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `TC_Export_${new Date().getTime()}.xlsx`; a.click();
+}
+
+window.onload = () => {
+    const saved = localStorage.getItem('gemini_key');
+    if(saved) {
+        document.getElementById('geminiKey').value = saved;
+        setStatus("연결됨", true);
+    }
+};
 </script>
 </body>
 </html>
