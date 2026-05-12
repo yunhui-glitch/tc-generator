@@ -116,7 +116,7 @@
       <input type="text" id="jiraTitle" placeholder="예: [BPM-52765][미니EPG 노출 보완]" />
     </div>
     <div class="form-row">
-      <div class="fg"><label>TC ID 접두사</label><input type="text" id="tcPrefix" value="TC-001" /></div>
+      <div class="fg"><label>TC ID</label><input type="text" id="tcPrefix" value="TC-001" /></div>
       <div class="fg"><label>대분류</label><input type="text" id="category" value="EPG" /></div>
     </div>
     <div>
@@ -301,7 +301,7 @@ async function generateTC() {
       signal,  // [수정 1] AbortSignal 연결
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text: `TC ID 접두사: ${prefix}\n대분류: ${category}\n\n=== 시나리오 ===\n${scenario}` }] }],
+        contents: [{ parts: [{ text: `TC ID: ${prefix}\n대분류: ${category}\n\n=== 시나리오 ===\n${scenario}` }] }],
         generationConfig: modelCfg.generationConfig
       })
     });
