@@ -339,7 +339,7 @@ async function copyToClipboard() {
 }
 
 async function uploadToSheets() {
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbwAJVI4ErKoa76iMlJyXFE1TXLJxwK2su_on463zwgs7MLGzHP9B6WabJNAxxWsOsP1/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbzRShbXfSiFjM4c1UE6SA177fS9T1hhRixBSknIkIHBkliqMLuGvU5MC2xUUjVL3TnQ/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
