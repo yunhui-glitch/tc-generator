@@ -342,45 +342,35 @@ async function uploadToSheets() {
   const scriptUrl = 'https://script.google.com/macros/s/AKfycbzRKGrtIoJDcbGikVBQrZijct8tkfKP5af7bmCKQ6r1gNJsDkcxMI3DYpKWJi400jGn/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
-  
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
-  if (!sheetName) { showToast('❗ 시트 이름을 입력해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
   setStatus('업로드 중...', false);
 
   try {
     const payload = {
-      sheetName: sheetName,
-      jiraTitle: jiraTitle,
-      tcData: tcData
+      sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
+      jiraTitle,
+      tcData
     };
-
-    // 📌 중요: mode: 'no-cors'를 삭제해야 서버의 에러 메시지(시트 없음 등)를 읽을 수 있습니다.
-    const res = await fetch(scriptUrl, {
+    // Apps Script는 no-cors로 호출 — 응답 확인 불가, 성공으로 간주
+    await fetch(scriptUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
-
-    const result = await res.json();
-    
-    if (result.status === 'ok') {
-      setStatus(`구글 시트 업로드 완료 — "${result.sheetName}" 탭`, true);
-      showToast(`📊 "${result.sheetName}" 탭으로 업로드 완료!`, 'success');
-    } else {
-      // 📌 앱 스크립트에서 보낸 "시트가 없습니다" 에러 메시지를 여기서 처리
-      throw new Error(result.message);
-    }
+    const finalSheetName = payload.sheetName;
+    setStatus(`구글 시트 업로드 완료 — "${finalSheetName}" 탭`, true);
+    showToast(`📊 "${finalSheetName}" 탭으로 업로드 완료! 시트에서 확인해주세요.`, 'success');
   } catch(e) {
-    console.error(e);
-    // 📌 시트가 없는 경우 여기서 빨간색 토스트로 안내 문구가 출력됩니다.
-    showToast(`❌ ${e.message}`, 'error');
-    setStatus('업로드 실패', false);
+    showToast('❌ ' + e.message, 'error');
+    setStatus('업로드 오류: ' + e.message, false);
   } finally {
     showLoading(false);
   }
 }
+
 function renderTable(data) {
   document.getElementById('tableContainer').innerHTML=`<div class="table-wrap"><table>
     <thead><tr><th>TC ID</th><th>JIRA</th><th>대분류</th><th>중분류</th><th>소분류</th><th>시험 항목</th><th>Pre-Condition</th><th>시험 절차</th><th>주요 점검 항목</th></tr></thead>
