@@ -23,7 +23,7 @@
   label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
   textarea,input[type=text],select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;font-family:'Pretendard',sans-serif;outline:none;transition:border-color .2s}
   textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent)}
-  textarea{resize:none;height:200px;line-height:1.65}
+  textarea{resize:none;height:130px;line-height:1.65}
   select option{background:var(--surface2)}
   .form-row{display:flex;gap:8px}.form-row .fg{flex:1}
   .divider{border:none;border-top:1px solid var(--border);margin:4px 0}
@@ -65,6 +65,26 @@
   .toast.success{border-color:rgba(62,207,142,.35)}.toast.error{border-color:rgba(244,63,94,.35)}
   @keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
   .thinking-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(124,92,252,.15);color:#a78bfa;border:1px solid rgba(124,92,252,.3);margin-left:6px}
+
+  /* 파일 첨부 스타일 */
+  .attach-zone{background:var(--surface2);border:1.5px dashed rgba(79,143,255,.35);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:6px}
+  .attach-header{display:flex;align-items:center;justify-content:space-between}
+  .attach-title{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px}
+  .attach-hint{font-size:10px;color:var(--text3)}
+  .attach-btn{font-size:11px;padding:3px 10px;background:rgba(79,143,255,.12);border:1px solid rgba(79,143,255,.3);border-radius:6px;color:var(--accent);cursor:pointer;font-family:'Pretendard',sans-serif;white-space:nowrap}
+  .attach-btn:hover{background:rgba(79,143,255,.2)}
+  .file-list{display:flex;flex-direction:column;gap:5px}
+  .file-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:5px 8px;display:flex;align-items:center;gap:7px}
+  .file-icon{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+  .file-icon.pdf{background:rgba(244,63,94,.12)}
+  .file-icon.img{background:rgba(79,143,255,.12)}
+  .file-icon.txt{background:rgba(62,207,142,.12)}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file-size{font-size:10px;color:var(--text3)}
+  .file-del{font-size:13px;color:var(--text3);cursor:pointer;padding:2px 4px;border-radius:4px;background:none;border:none;line-height:1;flex-shrink:0}
+  .file-del:hover{color:var(--danger);background:rgba(244,63,94,.1)}
+  #fileInput{display:none}
 </style>
 </head>
 <body>
@@ -87,10 +107,26 @@
 
   <div class="input-panel">
     <div class="panel-title">시나리오 입력</div>
+
     <div>
-      <label>기능 시나리오</label>
+      <label>기능 시나리오 <span style="color:var(--text3);font-size:10px">(파일 첨부 시 생략 가능)</span></label>
       <textarea id="scenario" placeholder="기능명, 조건, 예외 케이스 등을 입력하세요.&#10;&#10;Ctrl+Enter 로 바로 생성"></textarea>
     </div>
+
+    <!-- 파일 첨부 -->
+    <div>
+      <label>첨부 파일</label>
+      <div class="attach-zone">
+        <div class="attach-header">
+          <span class="attach-title">📎 이미지 · PDF · TXT</span>
+          <button class="attach-btn" onclick="document.getElementById('fileInput').click()">+ 파일 선택</button>
+        </div>
+        <div class="attach-hint">최대 10MB · 여러 파일 가능</div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*,.pdf,.txt" multiple />
+    </div>
+
     <div>
       <label>JIRA / 기능명</label>
       <input type="text" id="jiraTitle" placeholder="예: [BPM-52765][미니EPG 노출 보완]" />
@@ -120,8 +156,8 @@
     <div class="tip-box">
       <strong>📌 사용 방법</strong><br>
       1. <a href="https://aistudio.google.com/app/apikey" target="_blank">Gemini API 키 무료 발급</a><br>
-      2. 시나리오 입력 → TC 생성<br>
-      3. 📋 내용 복사 또는 📊 구글 시트에 추가<br><br>
+      2. 시나리오 입력 또는 파일 첨부 → TC 생성<br>
+      3. 📋 내용 복사 → 구글 시트에 Ctrl+V<br><br>
       <strong>⌨ 단축키</strong><br>
       Ctrl+Enter — TC 생성
     </div>
@@ -138,7 +174,7 @@
     <div id="tableContainer">
       <div class="empty-state">
         <div style="font-size:40px;opacity:.3">📋</div>
-        <p>시나리오를 입력하면<br>TC 초안이 여기에 표시됩니다</p>
+        <p>시나리오를 입력하거나 파일을 첨부하면<br>TC 초안이 여기에 표시됩니다</p>
       </div>
     </div>
     <div class="status-bar">
@@ -154,6 +190,7 @@
 <script>
 let tcData = [];
 let currentAbortController = null;
+let attachedFiles = []; // { file, base64, mimeType, name, size }
 
 const MODEL_CONFIG = {
   'gemini-2.5-flash': {
@@ -198,6 +235,53 @@ function onModelChange() {
 }
 onModelChange();
 
+// ── 파일 첨부 처리 ──
+document.getElementById('fileInput').addEventListener('change', async (ev) => {
+  const files = Array.from(ev.target.files);
+  for (const file of files) {
+    if (file.size > 10 * 1024 * 1024) { showToast(`❗ ${file.name} — 10MB 초과`, 'error'); continue; }
+    const base64 = await fileToBase64(file);
+    const mimeType = file.type || 'application/octet-stream';
+    attachedFiles.push({ file, base64, mimeType, name: file.name, size: file.size });
+  }
+  ev.target.value = '';
+  renderFileList();
+});
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('파일 읽기 실패'));
+    r.readAsDataURL(file);
+  });
+}
+
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  if (!attachedFiles.length) { list.innerHTML = ''; return; }
+  list.innerHTML = attachedFiles.map((f, i) => {
+    const kb = f.size < 1024 * 1024 ? `${Math.round(f.size/1024)} KB` : `${(f.size/1024/1024).toFixed(1)} MB`;
+    const isPdf = f.mimeType === 'application/pdf';
+    const isImg = f.mimeType.startsWith('image/');
+    const iconClass = isPdf ? 'pdf' : isImg ? 'img' : 'txt';
+    const icon = isPdf ? '📄' : isImg ? '🖼' : '📝';
+    return `<div class="file-item">
+      <div class="file-icon ${iconClass}">${icon}</div>
+      <div class="file-meta">
+        <div class="file-name">${e(f.name)}</div>
+        <div class="file-size">${kb} · ${isPdf ? 'PDF' : isImg ? '이미지' : 'TXT'}</div>
+      </div>
+      <button class="file-del" onclick="removeFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeFile(idx) {
+  attachedFiles.splice(idx, 1);
+  renderFileList();
+}
+
 const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
 제공된 시나리오를 바탕으로 실무에서 즉시 사용 가능한 수준의 상세 테스트 케이스를 설계하십시오.
 
@@ -230,8 +314,8 @@ async function generateTC() {
   const category = document.getElementById('category').value.trim() || '';
   const model    = document.getElementById('modelSelect').value;
 
-  if (!apiKey)   { showToast('❗ Gemini API 키를 입력해주세요', 'error'); return; }
-  if (!scenario) { showToast('❗ 시나리오를 입력해주세요', 'error'); return; }
+  if (!apiKey) { showToast('❗ Gemini API 키를 입력해주세요', 'error'); return; }
+  if (!scenario && !attachedFiles.length) { showToast('❗ 시나리오를 입력하거나 파일을 첨부해주세요', 'error'); return; }
 
   if (!document.getElementById('sheetName').value) {
     const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
@@ -249,13 +333,31 @@ async function generateTC() {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const modelCfg = MODEL_CONFIG[model] || MODEL_CONFIG['gemini-2.5-flash'];
 
+    // contents parts 구성 — 텍스트 + 파일
+    const parts = [];
+
+    // 텍스트 파트
+    const textContent = `TC ID 접두사: ${prefix}\n대분류: ${category}${scenario ? `\n\n=== 시나리오 ===\n${scenario}` : '\n\n첨부된 파일을 분석하여 TC를 생성하세요.'}`;
+    parts.push({ text: textContent });
+
+    // 파일 파트 (이미지 / PDF / TXT)
+    for (const f of attachedFiles) {
+      if (f.mimeType.startsWith('image/') || f.mimeType === 'application/pdf') {
+        parts.push({ inline_data: { mime_type: f.mimeType, data: f.base64 } });
+      } else {
+        // TXT는 텍스트로 디코딩해서 추가
+        const text = atob(f.base64);
+        parts.push({ text: `\n=== 첨부 파일: ${f.name} ===\n${text}` });
+      }
+    }
+
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal,
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text: `TC ID 접두사: ${prefix}\n대분류: ${category}\n\n=== 시나리오 ===\n${scenario}` }] }],
+        contents: [{ parts }],
         generationConfig: modelCfg.generationConfig
       })
     });
@@ -270,8 +372,8 @@ async function generateTC() {
     }
 
     const data = await res.json();
-    const parts = data.candidates?.[0]?.content?.parts || [];
-    const raw = parts.filter(p => p.text && !p.thought).map(p => p.text).join('');
+    const resParts = data.candidates?.[0]?.content?.parts || [];
+    const raw = resParts.filter(p => p.text && !p.thought).map(p => p.text).join('');
 
     let parsed = null;
     if (modelCfg.jsonMode) {
@@ -339,39 +441,32 @@ async function copyToClipboard() {
 }
 
 async function uploadToSheets() {
-  // 배포 후 생성된 새 URL을 여기에 넣으세요
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbzRShbXfSiFjM4c1UE6SA177fS9T1hhRixBSknIkIHBkliqMLuGvU5MC2xUUjVL3TnQ/exec';
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbzRKGrtIoJDcbGikVBQrZijct8tkfKP5af7bmCKQ6r1gNJsDkcxMI3DYpKWJi400jGn/exec';
   const sheetName = document.getElementById('sheetName').value.trim();
   const jiraTitle = document.getElementById('jiraTitle').value.trim();
-  
   if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
-  if (!sheetName) { showToast('❗ 시트 이름을 입력해주세요', 'error'); return; }
 
   showLoading(true, '구글 시트에 업로드 중...');
   setStatus('업로드 중...', false);
 
   try {
-    const payload = { sheetName, jiraTitle, tcData };
-
-    // mode: 'no-cors'를 제거해야 응답을 읽을 수 있습니다.
-    const res = await fetch(scriptUrl, {
+    const payload = {
+      sheetName: sheetName || `TC_${new Date().toISOString().slice(0,10).replace(/-/g,'')}`,
+      jiraTitle,
+      tcData
+    };
+    await fetch(scriptUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
-
-    const result = await res.json();
-    
-    if (result.status === 'ok') {
-      setStatus(`📊 "${result.sheetName}" 업로드 완료`, true);
-      showToast(`📊 "${result.sheetName}" 탭으로 업로드 완료!`, 'success');
-    } else {
-      throw new Error(result.message);
-    }
+    const finalSheetName = payload.sheetName;
+    setStatus(`구글 시트 업로드 완료 — "${finalSheetName}" 탭`, true);
+    showToast(`📊 "${finalSheetName}" 탭으로 업로드 완료! 시트에서 확인해주세요.`, 'success');
   } catch(e) {
-    console.error(e);
-    showToast(`❌ ${e.message}`, 'error');
-    setStatus('업로드 실패', false);
+    showToast('❌ ' + e.message, 'error');
+    setStatus('업로드 오류: ' + e.message, false);
   } finally {
     showLoading(false);
   }
