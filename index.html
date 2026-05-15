@@ -734,6 +734,23 @@
     padding: 14px;
   }
 
+  .result-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--bg4);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .result-pre {
+    white-space: pre-line;
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
   .skeleton {
     height: 14px;
     background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
@@ -1263,10 +1280,15 @@
       <table class="tc-table" id="tcTable">
         <thead>
           <tr>
-            <th style="width: 110px;">TC ID</th>
-            <th style="width: 80px;">우선순위</th>
-            <th>테스트 시나리오</th>
-            <th>예상 결과</th>
+            <th>TC ID</th>
+            <th>JIRA</th>
+            <th>대분류</th>
+            <th>중분류</th>
+            <th>소분류</th>
+            <th>시험 항목</th>
+            <th>Pre-Condition</th>
+            <th>시험 절차</th>
+            <th>주요 점검 항목</th>
           </tr>
         </thead>
         <tbody id="tcBody"></tbody>
@@ -1290,11 +1312,11 @@
   }
 
   const tcData = [
-    { id: 'TC-001-EPG-001', priority: 'high', scenario: '채널 변경 시 미니EPG 정보가 변경된 채널 기준으로 갱신되는지 확인', result: '변경된 채널의 현재/다음 방송 정보가 2초 이내 표시됨' },
-    { id: 'TC-001-EPG-002', priority: 'high', scenario: '현재 방송 종료 10분 전 다음 편성 정보가 미니EPG에 노출되는지 확인', result: '다음 편성 제목, 시작 시간이 정확하게 표시되며 카운트다운 표시됨' },
-    { id: 'TC-001-EPG-003', priority: 'mid', scenario: 'EPG 정보가 없는 채널에서 미니EPG 영역 처리 확인', result: '"방송 정보 없음" 문구 표시, UI 레이아웃 깨짐 없음' },
-    { id: 'TC-001-EPG-004', priority: 'mid', scenario: '리모컨 OK 키 입력 시 미니EPG → 상세 EPG 화면으로 전환되는지 확인', result: '상세 EPG 팝업 또는 전환 화면이 0.5초 이내 노출됨' },
-    { id: 'TC-001-EPG-005', priority: 'low', scenario: '미니EPG 노출 상태에서 볼륨 조절 시 EPG 정보 유지 여부 확인', result: '볼륨 OSD와 미니EPG가 동시에 정상 노출됨' },
+    { tc_id:'TC-EPG-001', jira:'', category_large:'EPG', category_mid:'미니EPG', category_small:'노출', test_item:'채널 변경 시 미니EPG 갱신', precondition:'채널 선택 화면 진입', test_steps:'1. 리모컨으로 채널 변경\n2. 미니EPG 영역 확인', expected_result:'변경된 채널의 현재/다음 방송 정보가 2초 이내 표시됨' },
+    { tc_id:'TC-EPG-002', jira:'', category_large:'EPG', category_mid:'미니EPG', category_small:'편성', test_item:'방송 종료 전 다음 편성 노출', precondition:'현재 방송 종료 10분 전', test_steps:'1. 미니EPG 영역 확인\n2. 다음 편성 정보 확인', expected_result:'다음 편성 제목, 시작 시간이 정확하게 표시됨' },
+    { tc_id:'TC-EPG-003', jira:'', category_large:'EPG', category_mid:'미니EPG', category_small:'예외', test_item:'EPG 정보 없는 채널 처리', precondition:'EPG 미제공 채널 선택', test_steps:'1. EPG 없는 채널로 이동\n2. 미니EPG 영역 확인', expected_result:'"방송 정보 없음" 표시, 레이아웃 깨짐 없음' },
+    { tc_id:'TC-EPG-004', jira:'', category_large:'EPG', category_mid:'미니EPG', category_small:'진입', test_item:'OK 키 입력 시 상세 EPG 전환', precondition:'미니EPG 노출 상태', test_steps:'1. 리모컨 OK 키 입력\n2. 상세 EPG 화면 확인', expected_result:'상세 EPG 화면이 0.5초 이내 노출됨' },
+    { tc_id:'TC-EPG-005', jira:'', category_large:'EPG', category_mid:'미니EPG', category_small:'동시 노출', test_item:'볼륨 조절 시 EPG 유지', precondition:'미니EPG 노출 상태', test_steps:'1. 볼륨 버튼 입력\n2. 미니EPG 유지 여부 확인', expected_result:'볼륨 OSD와 미니EPG가 동시에 정상 노출됨' },
   ];
 
   function onSheetInput() {
@@ -1388,18 +1410,23 @@
     }, 2200);
   }
 
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
   function renderTCs() {
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = tcData.map(tc => `
       <tr>
-        <td class="tc-id-cell">${tc.id}</td>
-        <td>
-          <span class="priority-badge priority-${tc.priority}">
-            ${tc.priority === 'high' ? '높음' : tc.priority === 'mid' ? '중간' : '낮음'}
-          </span>
-        </td>
-        <td class="result-text">${tc.scenario}</td>
-        <td class="result-text" style="color: var(--text2);">${tc.result}</td>
+        <td class="tc-id-cell">${esc(tc.tc_id)}</td>
+        <td style="font-size:11px;color:var(--accent2)">${esc(tc.jira)}</td>
+        <td><span class="result-tag">${esc(tc.category_large)}</span></td>
+        <td><span class="result-tag">${esc(tc.category_mid)}</span></td>
+        <td><span class="result-tag">${esc(tc.category_small)}</span></td>
+        <td class="result-text">${esc(tc.test_item)}</td>
+        <td class="result-pre">${esc(tc.precondition)}</td>
+        <td class="result-pre">${esc(tc.test_steps)}</td>
+        <td class="result-pre">${esc(tc.expected_result)}</td>
       </tr>
     `).join('');
   }
