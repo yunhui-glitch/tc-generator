@@ -1151,9 +1151,7 @@
     <div class="section">
       <div class="section-label">시나리오 입력</div>
       <textarea id="scenarioInput" placeholder="기능명, 조건, 예외 케이스 등을 입력하세요." rows="4"></textarea>
-      <div class="textarea-hint">
-        <kbd>Ctrl</kbd><kbd>↵</kbd> 로 바로 생성
-      </div>
+
 
     </div>
 
@@ -1318,9 +1316,7 @@
     document.getElementById(id).addEventListener('input', updatePreview);
   });
 
-  document.getElementById('scenarioInput').addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') startGeneration();
-  });
+
 
   const tcData = [
     { id: 'TC-001-EPG-001', priority: 'high', scenario: '채널 변경 시 미니EPG 정보가 변경된 채널 기준으로 갱신되는지 확인', result: '변경된 채널의 현재/다음 방송 정보가 2초 이내 표시됨' },
