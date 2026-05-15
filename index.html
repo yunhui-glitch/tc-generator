@@ -1177,8 +1177,6 @@
           type="password"
           id="headerApiKeyInput"
           placeholder="Gemini API 키 입력…"
-          oninput="onHeaderKeyInput()"
-          onkeydown="if(event.key==='Enter') confirmHeaderKey()"
           autocomplete="off"
           style="width:200px; background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:6px 36px 6px 10px; color:var(--text); font-size:12px; font-family:'JetBrains Mono',monospace; letter-spacing:0.03em; outline:none; transition:border-color 0.2s, box-shadow 0.2s;"
         />
@@ -1651,27 +1649,26 @@
   function renderTCs() {
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = tcData.map((tc, i) => {
-      const cell = (field, val, isMulti) => {
-        const display = isMulti
-          ? '<span class="result-pre">' + esc(val) + '</span>'
-          : val;
-        return '<td class="editable" onclick="startEdit(this,' + i + ','' + field + '',' + !!isMulti + ')">' + display + '</td>';
-      };
+      const ed = (field, display, isMulti) =>
+        '<td class="editable" data-row="' + i + '" data-field="' + field + '" data-multi="' + isMulti + '" onclick="startEdit(this)">' + display + '</td>';
       return '<tr>' +
-        cell('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
-        cell('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
-        cell('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
-        cell('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
-        cell('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
-        cell('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
-        cell('precondition', tc.precondition, true) +
-        cell('test_steps', tc.test_steps, true) +
-        cell('expected_result', tc.expected_result, true) +
+        ed('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
+        ed('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
+        ed('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
+        ed('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
+        ed('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
+        ed('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
+        ed('precondition', '<span class="result-pre">' + esc(tc.precondition) + '</span>', true) +
+        ed('test_steps', '<span class="result-pre">' + esc(tc.test_steps) + '</span>', true) +
+        ed('expected_result', '<span class="result-pre">' + esc(tc.expected_result) + '</span>', true) +
       '</tr>';
     }).join('');
   }
 
-  function startEdit(td, rowIdx, field, isMulti) {
+  function startEdit(td) {
+    const rowIdx = parseInt(td.dataset.row);
+    const field = td.dataset.field;
+    const isMulti = td.dataset.multi === 'true';
     if (td.classList.contains('editing')) return;
     const curVal = tcData[rowIdx][field] || '';
     td.classList.add('editing');
@@ -1780,6 +1777,11 @@
   }
 
   // ── HEADER API KEY ──
+  document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
+  document.getElementById('headerApiKeyInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') confirmHeaderKey();
+  });
+
   let headerKeyVisible = false;
 
   function onHeaderKeyInput() {
