@@ -1304,17 +1304,6 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  function updatePreview() {
-    const prefix = document.getElementById('prefixInput').value || 'TC-001';
-    const cat = document.getElementById('categoryInput').value || 'CAT';
-    const scenario = document.getElementById('scenarioInput').value;
-    const firstLine = scenario.split('\n')[0].replace(/^[-\s]*/, '').slice(0, 8) || '시나리오';
-    document.getElementById('tcPreview').textContent = `${prefix}-${cat}-${firstLine}`;
-  }
-
-  ['prefixInput', 'categoryInput', 'scenarioInput'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updatePreview);
-  });
 
 
 
