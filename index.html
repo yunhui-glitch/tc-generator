@@ -1056,10 +1056,10 @@
   /* 파일 목록 */
   .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
   .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
-  .file-icon { width: 26px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
-  .file-icon.pdf { background: rgba(248,113,113,0.12); }
-  .file-icon.img { background: var(--accent-bg); }
-  .file-icon.txt { background: var(--green-bg); }
+  .file-icon { width: 30px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: -0.3px; }
+  .file-icon.pdf { background: rgba(248,113,113,0.15); color: var(--red); }
+  .file-icon.img { background: var(--accent-bg); color: var(--accent2); }
+  .file-icon.txt { background: var(--green-bg); color: var(--green); }
   .file-meta { flex: 1; min-width: 0; }
   .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .file-size { font-size: 10px; color: var(--text3); }
@@ -1396,7 +1396,7 @@
       const isPdf = f.mimeType === 'application/pdf';
       const isImg = f.mimeType.startsWith('image/');
       const iconClass = isPdf ? 'pdf' : isImg ? 'img' : 'txt';
-      const icon = isPdf ? '📄' : isImg ? '🖼' : '📝';
+      const icon = isPdf ? 'PDF' : isImg ? 'IMG' : 'TXT';
       return '<div class="file-item">' +
         '<div class="file-icon ' + iconClass + '">' + icon + '</div>' +
         '<div class="file-meta">' +
