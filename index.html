@@ -1053,6 +1053,32 @@
     background: var(--amber);
   }
 
+  /* 인라인 편집 */
+  td.editable { cursor: text; }
+  td.editable:hover { background: rgba(99,102,241,0.05) !important; }
+  td.editing { padding: 0 !important; }
+  .cell-input {
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
+    background: var(--bg4);
+    border: 1.5px solid var(--accent-border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+  }
+  .cell-input:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+
   /* 파일 목록 */
   .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
   .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
@@ -1616,19 +1642,60 @@
 
   function renderTCs() {
     const tbody = document.getElementById('tcBody');
-    tbody.innerHTML = tcData.map(tc =>
-      '<tr>' +
-        '<td class="tc-id-cell">' + esc(tc.tc_id) + '</td>' +
-        '<td style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</td>' +
-        '<td><span class="result-tag">' + esc(tc.category_large) + '</span></td>' +
-        '<td><span class="result-tag">' + esc(tc.category_mid) + '</span></td>' +
-        '<td><span class="result-tag">' + esc(tc.category_small) + '</span></td>' +
-        '<td class="result-text">' + esc(tc.test_item) + '</td>' +
-        '<td class="result-pre">' + esc(tc.precondition) + '</td>' +
-        '<td class="result-pre">' + esc(tc.test_steps) + '</td>' +
-        '<td class="result-pre">' + esc(tc.expected_result) + '</td>' +
-      '</tr>'
-    ).join('');
+    tbody.innerHTML = tcData.map((tc, i) => {
+      const cell = (field, val, isMulti) => {
+        const display = isMulti
+          ? '<span class="result-pre">' + esc(val) + '</span>'
+          : val;
+        return '<td class="editable" onclick="startEdit(this,' + i + ','' + field + '',' + !!isMulti + ')">' + display + '</td>';
+      };
+      return '<tr>' +
+        cell('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
+        cell('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
+        cell('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
+        cell('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
+        cell('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
+        cell('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
+        cell('precondition', tc.precondition, true) +
+        cell('test_steps', tc.test_steps, true) +
+        cell('expected_result', tc.expected_result, true) +
+      '</tr>';
+    }).join('');
+  }
+
+  function startEdit(td, rowIdx, field, isMulti) {
+    if (td.classList.contains('editing')) return;
+    const curVal = tcData[rowIdx][field] || '';
+    td.classList.add('editing');
+
+    const el = document.createElement(isMulti ? 'textarea' : 'input');
+    el.className = 'cell-input';
+    el.value = curVal;
+    if (isMulti) {
+      el.rows = Math.max(3, curVal.split('\n').length + 1);
+      el.style.minHeight = (el.rows * 20 + 16) + 'px';
+    }
+    td.innerHTML = '';
+    td.appendChild(el);
+    el.focus();
+
+    const commit = () => {
+      const newVal = el.value;
+      tcData[rowIdx][field] = newVal;
+      td.classList.remove('editing');
+      // 셀 내용 다시 렌더
+      if (field === 'tc_id') td.innerHTML = '<span class="tc-id-cell">' + esc(newVal) + '</span>';
+      else if (field === 'jira') td.innerHTML = '<span style="font-size:11px;color:var(--accent2)">' + esc(newVal) + '</span>';
+      else if (['category_large','category_mid','category_small'].includes(field)) td.innerHTML = '<span class="result-tag">' + esc(newVal) + '</span>';
+      else if (field === 'test_item') td.innerHTML = '<span class="result-text">' + esc(newVal) + '</span>';
+      else td.innerHTML = '<span class="result-pre">' + esc(newVal) + '</span>';
+    };
+
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', e => {
+      if (!isMulti && e.key === 'Enter') { e.preventDefault(); el.blur(); }
+      if (e.key === 'Escape') { el.value = curVal; el.blur(); }
+    });
   }
 
   function onSheetInput() {
