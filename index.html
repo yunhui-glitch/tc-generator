@@ -1175,7 +1175,7 @@
     <!-- 파일 첨부 -->
     <div class="section">
       <div class="section-label">파일 첨부 <span style="color: var(--text3); font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 400;">— 첨부 시 시나리오 생략 가능</span></div>
-      <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+      <div class="file-drop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent-border)'" ondragleave="this.style.borderColor=''" ondrop="handleFileDrop(event);this.style.borderColor=''">
         <span class="file-drop-icon">📎</span>
         이미지 · PDF · TXT 드롭 또는 클릭<br>
         <span style="font-size: 11px; color: var(--text3);">최대 10MB · 여러 파일 가능</span>
@@ -1710,6 +1710,22 @@
     const input = document.getElementById('headerApiKeyInput');
     input.type = headerKeyVisible ? 'text' : 'password';
     document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
+  }
+
+  // ── 파일 드래그앤드롭 ──
+  async function handleFileDrop(ev) {
+    ev.preventDefault();
+    const files = Array.from(ev.dataTransfer.files).filter(f =>
+      f.type.startsWith('image/') || f.type === 'application/pdf' || f.type === 'text/plain' || f.name.endsWith('.txt')
+    );
+    if (!files.length) { showToast('❗ 이미지, PDF, TXT 파일만 지원합니다', 'error'); return; }
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
+      const base64 = await fileToBase64(file);
+      const mimeType = file.type || 'application/octet-stream';
+      attachedFiles.push({ file, base64, mimeType, name: file.name, size: file.size });
+    }
+    renderFileList();
   }
 
   // ── Ctrl+Enter 단축키 ──
