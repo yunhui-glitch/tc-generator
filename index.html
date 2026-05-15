@@ -1289,9 +1289,6 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-
-
-
   const tcData = [
     { id: 'TC-001-EPG-001', priority: 'high', scenario: '채널 변경 시 미니EPG 정보가 변경된 채널 기준으로 갱신되는지 확인', result: '변경된 채널의 현재/다음 방송 정보가 2초 이내 표시됨' },
     { id: 'TC-001-EPG-002', priority: 'high', scenario: '현재 방송 종료 10분 전 다음 편성 정보가 미니EPG에 노출되는지 확인', result: '다음 편성 제목, 시작 시간이 정확하게 표시되며 카운트다운 표시됨' },
@@ -1311,7 +1308,7 @@
   }
 
   function startGeneration() {
-    const input = document.getElementById('scenarioInput').value.trim();
+    const scenarioVal = document.getElementById('scenarioInput').value.trim();
     const sheetVal = document.getElementById('sheetInput').value.trim();
 
     if (!sheetVal) {
@@ -1321,10 +1318,12 @@
       sheetInput.focus();
       return;
     }
-    if (!input) {
-      document.getElementById('scenarioInput').focus();
-      document.getElementById('scenarioInput').style.borderColor = 'rgba(248,113,113,0.5)';
-      setTimeout(() => document.getElementById('scenarioInput').style.borderColor = '', 1500);
+
+    if (!scenarioVal) {
+      const scenarioInput = document.getElementById('scenarioInput');
+      scenarioInput.focus();
+      scenarioInput.style.borderColor = 'rgba(248,113,113,0.5)';
+      setTimeout(() => { scenarioInput.style.borderColor = ''; }, 1500);
       return;
     }
 
@@ -1351,7 +1350,6 @@
       progressFill.style.width = progress + '%';
     }, 300);
 
-    // Show skeleton first
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = Array(4).fill(0).map(() => `
       <tr class="skeleton-row">
@@ -1385,7 +1383,7 @@
 
         renderTCs();
         document.getElementById('generatedCount').textContent = tcData.length + '개';
-        document.getElementById('tcCountLabel').textContent = `총 ${tcData.length}개 생성됨`;
+        document.getElementById('tcCountLabel').textContent = '총 ' + tcData.length + '개 생성됨';
       }, 300);
     }, 2200);
   }
@@ -1405,7 +1403,8 @@
       </tr>
     `).join('');
   }
-  // ── HEADER API KEY ──
+
+  // HEADER API KEY
   let headerKeyVisible = false;
 
   function onHeaderKeyInput() {
@@ -1416,7 +1415,6 @@
 
     if (val.length > 10) {
       input.classList.add('key-ok');
-      // 연결됨 상태로 전환
       badge.className = 'api-conn-badge connected';
       label.textContent = '연결됨';
     } else {
@@ -1440,6 +1438,6 @@
     input.type = headerKeyVisible ? 'text' : 'password';
     document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
   }
-
+</script>
 </body>
 </html>
