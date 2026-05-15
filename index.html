@@ -1277,26 +1277,11 @@
 </div>
 
 <script>
-  const examples = {
-    login: '로그인 기능 TC\n- 정상 로그인 (아이디/비밀번호 일치)\n- 비밀번호 5회 오류 시 계정 잠금\n- 소셜 로그인 (Google, Kakao)\n- 세션 만료 후 자동 로그아웃',
-    payment: '결제 플로우 예외 케이스 TC\n- 카드 잔액 부족 시 결제 실패 처리\n- 결제 진행 중 네트워크 단절\n- 중복 결제 방지 처리\n- 환불 요청 시 포인트/카드 분리 환불',
-    epg: '[BPM-52765] 미니EPG 노출 보완 TC\n- 채널 변경 시 미니EPG 정보 갱신\n- 방송 종료 직전 다음 편성 노출 확인\n- 미니EPG 미노출 채널 예외 처리\n- 리모컨 OK 키로 상세 EPG 진입'
-  };
-
   const modelDescs = {
     'flash-lite': '빠름 · 무료 · 15 RPM / 1500 RPD — 단순 TC 대량 생성에 적합',
     'flash': '균형 · 무료 · 10 RPM / 500 RPD — TC 생성 기본 추천',
     'pro': '정밀 · 유료 · 2 RPM / 50 RPD — 복잡한 시나리오 정밀 분석'
   };
-
-  function fillExample(type) {
-    document.getElementById('scenarioInput').value = examples[type];
-    if (type === 'epg') {
-      document.getElementById('jiraInput').value = '[BPM-52765][미니EPG 노출 보완]';
-      document.getElementById('categoryInput').value = 'EPG';
-    }
-    updatePreview();
-  }
 
   function selectModel(btn, key) {
     document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
