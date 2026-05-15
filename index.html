@@ -1053,6 +1053,19 @@
     background: var(--amber);
   }
 
+  /* 파일 목록 */
+  .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+  .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
+  .file-icon { width: 26px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+  .file-icon.pdf { background: rgba(248,113,113,0.12); }
+  .file-icon.img { background: var(--accent-bg); }
+  .file-icon.txt { background: var(--green-bg); }
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 10px; color: var(--text3); }
+  .file-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 2px 5px; border-radius: 4px; background: none; border: none; line-height: 1; flex-shrink: 0; transition: all 0.15s; }
+  .file-del:hover { color: var(--red); background: var(--red-bg); }
+
   /* API 키 인라인 헤더 */
   .header-api-wrap {
     position: relative;
@@ -1237,12 +1250,9 @@
     </div>
 
     <!-- 생성 버튼 -->
-    <div style="display:flex;gap:8px;">
-      <button class="generate-btn" id="generateBtn" onclick="startGeneration()" style="flex:1;">
-        <span>✦</span> TC 초안 생성
-      </button>
-      <button id="cancelBtn" onclick="cancelGenerate()" style="display:none;padding:12px 14px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:var(--radius);color:var(--red);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.2s;" onmouseover="this.style.background='rgba(248,113,113,0.22)'" onmouseout="this.style.background='rgba(248,113,113,0.12)'">✕ 취소</button>
-    </div>
+    <button class="generate-btn" id="generateBtn" onclick="handleGenerateBtn()">
+      <span>✦</span> TC 초안 생성
+    </button>
 
   </div>
 
@@ -1429,6 +1439,15 @@
   }
 ]`;
 
+  // ── 생성/취소 버튼 핸들러 ──
+  function handleGenerateBtn() {
+    if (currentAbortController) {
+      cancelGenerate();
+    } else {
+      startGeneration();
+    }
+  }
+
   // ── TC 생성 ──
   async function startGeneration() {
     const apiKey = document.getElementById('headerApiKeyInput').value.trim();
@@ -1456,9 +1475,8 @@
     // UI — 생성 시작
     const btn = document.getElementById('generateBtn');
     btn.classList.add('loading');
-    btn.innerHTML = '<div class="spinner"></div> 생성 중...';
-    btn.disabled = true;
-    document.getElementById('cancelBtn').style.display = 'block';
+    btn.innerHTML = '<div class="spinner"></div> 취소';
+    btn.disabled = false;
     document.getElementById('copyBtn').disabled = true;
     document.getElementById('sheetBtn').disabled = true;
     document.getElementById('emptyState').style.display = 'none';
@@ -1583,7 +1601,6 @@
       btn.classList.remove('loading');
       btn.disabled = false;
       btn.innerHTML = '<span>✦</span> TC 초안 생성';
-      document.getElementById('cancelBtn').style.display = 'none';
       currentAbortController = null;
     }
   }
