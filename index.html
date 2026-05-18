@@ -476,16 +476,17 @@
   }
 
   .generate-btn.loading {
-    background: var(--bg4);
-    color: var(--text2);
-    cursor: not-allowed;
-  }
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.35);
+    color: var(--red);
+    cursor: pointer;
+}
 
   .spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-top-color: #fff;
+    border: 2px solid rgba(248,113,113,0.25);
+    border-top-color: var(--red);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
