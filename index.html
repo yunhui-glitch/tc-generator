@@ -1746,13 +1746,13 @@
     btn.innerHTML = '<span>⏳</span> 업로드 중...';
 
     try {
-      const payload = { sheetName, jiraTitle, tcData };
+      const payload = { token: 'btv-qa-2026-xyz', sheetName, jiraTitle, tcData };  // ← 추가
       await fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(payload)
-      });
+  });
       showToast('📊 "' + sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
     } catch(e) {
       showToast('❌ ' + e.message, 'error');
