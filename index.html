@@ -844,10 +844,20 @@
 
 <script>
   // 환경변수 분리
-  const GLOBAL_CONFIG = {
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec'
+  const CONFIG = {
+    API: {
+      APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec',
+      GEMINI_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models/'
+    }
   };
-
+  // 초기화: 페이지 로드 시 저장된 키 불러오기 (이거 추가)
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedKey = sessionStorage.getItem('gemini_api_key');
+    if (savedKey) {
+      document.getElementById('headerApiKeyInput').value = savedKey;
+      onHeaderKeyInput();
+    }
+  });
   // 상태 관리
   let tcData = [];
   let currentAbortController = null;
@@ -1021,7 +1031,8 @@
     document.getElementById('resultArea').classList.add('visible');
 
     try {
-      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelCfg.id + ':generateContent?key=' + apiKey;
+      const apiKey = sessionStorage.getItem('gemini_api_key') || document.getElementById('headerApiKeyInput').value.trim();
+      const url = `${CONFIG.API.GEMINI_BASE_URL}${modelCfg.id}:generateContent?key=${apiKey}`;
       const parts = [];
       const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
         (scenario ? '\n\n=== 시나리오 ===\n' + scenario : '\n\n첨부된 파일을 분석하여 TC를 생성하세요.');
@@ -1248,7 +1259,7 @@
     try {
       const payload = { sheetName, jiraTitle, tcData };
       
-      const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
+      const res = await fetch(CONFIG.API.APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(payload)
@@ -1287,8 +1298,12 @@
   let headerKeyVisible = false;
 
   function onHeaderKeyInput() {
-    const val = document.getElementById('headerApiKeyInput').value.trim();
     const input = document.getElementById('headerApiKeyInput');
+    const val = input.value.trim();
+    
+    // 세션 스토리지에 저장 (보안 보완)
+    sessionStorage.setItem('gemini_api_key', val);
+    
     const badge = document.getElementById('apiConnectionStatus');
     const label = document.getElementById('apiConnLabel');
     
