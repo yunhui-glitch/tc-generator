@@ -850,14 +850,6 @@
       GEMINI_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models/'
     }
   };
-  // 초기화: 페이지 로드 시 저장된 키 불러오기 (이거 추가)
-  document.addEventListener('DOMContentLoaded', () => {
-    const savedKey = sessionStorage.getItem('gemini_api_key');
-    if (savedKey) {
-      document.getElementById('headerApiKeyInput').value = savedKey;
-      onHeaderKeyInput();
-    }
-  });
   // 상태 관리
   let tcData = [];
   let currentAbortController = null;
@@ -1031,7 +1023,7 @@
     document.getElementById('resultArea').classList.add('visible');
 
     try {
-      const apiKey = sessionStorage.getItem('gemini_api_key') || document.getElementById('headerApiKeyInput').value.trim();
+      const apiKey = document.getElementById('headerApiKeyInput').value.trim();
       const url = `${CONFIG.API.GEMINI_BASE_URL}${modelCfg.id}:generateContent?key=${apiKey}`;
       const parts = [];
       const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
@@ -1269,7 +1261,7 @@
       const result = await res.json();
       if (result.status === 'error') throw new Error(result.message);
       
-      showToast('📊 "' + sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
+      showToast('📊 "' + result.sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
     } catch(e) {
       showToast('❌ 업로드 실패: ' + e.message, 'error');
     } finally {
@@ -1300,10 +1292,6 @@
   function onHeaderKeyInput() {
     const input = document.getElementById('headerApiKeyInput');
     const val = input.value.trim();
-    
-    // 세션 스토리지에 저장 (보안 보완)
-    sessionStorage.setItem('gemini_api_key', val);
-    
     const badge = document.getElementById('apiConnectionStatus');
     const label = document.getElementById('apiConnLabel');
     
@@ -1340,7 +1328,7 @@
   }
 
   document.addEventListener('keydown', ev => {
-    if (ev.ctrlKey && ev.key === 'Enter') startGeneration();
+    if (ev.ctrlKey && ev.key === 'Enter') handleGenerateBtn();
   });
 </script>
 </body>
