@@ -6,1335 +6,1315 @@
 <title>TC 자동 생성기</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0e0f14;
-    --bg2: #13151c;
-    --bg3: #1a1d27;
-    --bg4: #20242f;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #e8eaf0;
-    --text2: #8b90a0;
-    --text3: #555a6a;
-    --accent: #6366f1;
-    --accent2: #818cf8;
-    --accent-bg: rgba(99,102,241,0.12);
-    --accent-border: rgba(99,102,241,0.35);
-    --green: #34d399;
-    --green-bg: rgba(52,211,153,0.1);
-    --amber: #fbbf24;
-    --amber-bg: rgba(251,191,36,0.1);
-    --red: #f87171;
-    --red-bg: rgba(248,113,113,0.1);
-    --radius: 10px;
-    --radius-lg: 14px;
-  }
-
-  body {
-    font-family: 'Pretendard', -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    font-size: 14px;
-  }
-
-  /* HEADER */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 52px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-icon {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, var(--accent), #a78bfa);
-    border-radius: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-  }
-
-  .logo-text {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.3px;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .header-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: var(--bg4);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    color: var(--text2);
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-  }
-
-  .header-btn:hover:not(:disabled) {
-    background: var(--bg3);
-    color: var(--text);
-    border-color: var(--border2);
-  }
-
-  .header-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .header-btn.primary {
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
-    color: var(--accent2);
-  }
-
-  .header-btn.primary:hover:not(:disabled) {
-    background: rgba(99,102,241,0.2);
-    color: #a5b4fc;
-  }
-
-  /* MAIN LAYOUT */
-  .main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: 300px;
-    flex-shrink: 0;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-track { background: transparent; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-  .section {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text3);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  textarea {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: inherit;
-    resize: none;
-    line-height: 1.6;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    min-height: 100px;
-    field-sizing: content;
-  }
-
-  textarea::placeholder { color: var(--text3); }
-  textarea:focus {
-    outline: none;
-    border-color: var(--accent-border);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-    background: var(--bg4);
-  }
-
-  /* FILE DROP */
-  .file-drop {
-    border: 1.5px dashed var(--border2);
-    border-radius: var(--radius);
-    padding: 14px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text3);
-    font-size: 12px;
-    line-height: 1.6;
-  }
-
-  .file-drop:hover {
-    border-color: var(--accent-border);
-    background: var(--accent-bg);
-    color: var(--accent2);
-  }
-
-  .file-drop-icon {
-    font-size: 20px;
-    margin-bottom: 4px;
-    display: block;
-  }
-
-  /* FORM FIELDS */
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  label {
-    font-size: 11px;
-    color: var(--text2);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  input[type="text"] {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 10px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: inherit;
-    transition: all 0.2s;
-    width: 100%;
-  }
-
-  input[type="text"]::placeholder { color: var(--text3); }
-  input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent-border);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-    background: var(--bg4);
-  }
-
-  /* MODEL SELECT */
-  .model-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 3px;
-    border: 1px solid var(--border);
-  }
-
-  .model-tab {
-    padding: 7px 6px;
-    border-radius: 7px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-    border: none;
-    background: transparent;
-    font-family: inherit;
-    color: var(--text3);
-  }
-
-  .model-tab:hover:not(.active) {
-    background: var(--bg3);
-    color: var(--text2);
-  }
-
-  .model-tab.active {
-    background: var(--bg4);
-    color: var(--text);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  }
-
-  .model-tab-name {
-    font-size: 12px;
-    font-weight: 600;
-    display: block;
-  }
-
-  .model-tab-desc {
-    font-size: 10px;
-    margin-top: 1px;
-    display: block;
-    color: var(--text3);
-  }
-
-  .model-tab.active .model-tab-desc { color: var(--text2); }
-  .model-tab.active.recommended .model-tab-name { color: var(--accent2); }
-
-  .model-badge {
-    display: inline-block;
-    font-size: 9px;
-    padding: 1px 5px;
-    background: var(--green-bg);
-    color: var(--green);
-    border-radius: 10px;
-    margin-top: 3px;
-    font-weight: 600;
-  }
-
-  /* GENERATE BUTTON */
-  .generate-btn {
-    margin: 12px 16px 16px;
-    width: calc(100% - 32px);
-    padding: 12px;
-    background: linear-gradient(135deg, var(--accent), #7c3aed);
-    border: none;
-    border-radius: var(--radius);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-    letter-spacing: -0.2px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .generate-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0);
-    transition: background 0.2s;
-  }
-
-  .generate-btn:hover::before { background: rgba(255,255,255,0.08); }
-  .generate-btn:active { transform: scale(0.98); }
-
-  .generate-btn.loading {
-    background: rgba(248,113,113,0.15);
-    border: 1px solid rgba(248,113,113,0.35);
-    color: var(--red);
-    cursor: pointer;
-  }
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(248,113,113,0.25);
-    border-top-color: var(--red);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* CONTENT AREA */
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: var(--bg);
-  }
-
-  /* STATUS BAR */
-  .status-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .status-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-  }
-
-  .status-dot-idle {
-    width: 7px;
-    height: 7px;
-    background: var(--text3);
-    border-radius: 50%;
-  }
-
-  .status-dot-active {
-    width: 7px;
-    height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 1.2s ease-in-out infinite;
-  }
-
-  .progress-bar {
-    height: 2px;
-    background: var(--bg4);
-    border-radius: 1px;
-    overflow: hidden;
-    width: 120px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #a78bfa);
-    border-radius: 1px;
-    width: 0%;
-    transition: width 0.3s ease;
-  }
-
-  /* EMPTY STATE */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 40px;
-    color: var(--text3);
-  }
-
-  .empty-icon { font-size: 48px; opacity: 0.3; }
-  .empty-title { font-size: 16px; font-weight: 500; color: var(--text2); }
-
-  .empty-desc {
-    font-size: 13px;
-    color: var(--text3);
-    text-align: center;
-    line-height: 1.7;
-    max-width: 320px;
-  }
-
-  .empty-steps {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .empty-step {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    font-size: 12px;
-    color: var(--text2);
-  }
-
-  .step-num {
-    width: 16px;
-    height: 16px;
-    background: var(--accent-bg);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--accent2);
-    flex-shrink: 0;
-  }
-
-  .arrow { color: var(--text3); font-size: 16px; }
-
-  /* RESULT AREA */
-  .result-area {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: none;
-  }
-
-  .result-area::-webkit-scrollbar { width: 4px; }
-  .result-area::-webkit-scrollbar-track { background: transparent; }
-  .result-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .result-area.visible { display: block; }
-
-  .result-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .result-title { font-size: 13px; font-weight: 600; color: var(--text2); }
-
-  .tc-count {
-    font-size: 12px;
-    padding: 3px 10px;
-    background: var(--accent-bg);
-    border: 1px solid var(--accent-border);
-    border-radius: 20px;
-    color: var(--accent2);
-    font-weight: 600;
-  }
-
-  /* TC TABLE */
-  .tc-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 13px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-
-  .tc-table th {
-    padding: 10px 14px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text2);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .tc-table td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-    line-height: 1.5;
-    color: var(--text);
-  }
-
-  .tc-table tr:last-child td { border-bottom: none; }
-  .tc-table tr:hover td { background: var(--bg3); }
-
-  .tc-id-cell {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--accent2);
-    white-space: nowrap;
-  }
-
-  .result-text { color: var(--text); font-size: 13px; font-weight: 500; line-height: 1.6; }
-
-  .result-tag {
-    display: inline-block;
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: var(--bg4);
-    color: var(--text2);
-    border: 1px solid var(--border2);
-  }
-
-  .result-pre { white-space: pre-line; font-size: 12px; color: var(--text); line-height: 1.6; }
-
-  /* LOADING SKELETON */
-  .skeleton-row td { padding: 14px; }
-
-  .skeleton {
-    height: 14px;
-    background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-  }
-
-  /* 키프레임 무브먼트 선언 */
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .skeleton.short { width: 60%; }
-  .skeleton.medium { width: 80%; }
-
-  /* API KEY WRAPPER */
-  .header-api-wrap { position: relative; display: flex; align-items: center; }
-  .header-api-wrap input:focus {
-    border-color: var(--accent-border) !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important;
-    background: var(--bg4) !important;
-  }
-  .header-api-wrap input.key-ok { border-color: rgba(52,211,153,0.45) !important; }
-
-  .api-conn-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-    border: 1px solid transparent;
-    transition: all 0.3s;
-  }
-
-  .api-conn-badge.disconnected { background: var(--bg3); border-color: var(--border); color: var(--text3); }
-  .api-conn-badge.connected { background: var(--green-bg); border-color: rgba(52,211,153,0.3); color: var(--green); }
-  .api-conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .api-conn-badge.connected .api-conn-dot { animation: pulse 2s ease-in-out infinite; }
-
-  /* 인라인 편집 */
-  td.editable { cursor: text; }
-  td.editable:hover { background: rgba(99,102,241,0.05) !important; }
-  td.editing { padding: 0 !important; }
-  
-  .cell-input {
-    width: 100%;
-    height: 100%;
-    min-height: 36px;
-    background: var(--bg4);
-    border: 1.5px solid var(--accent-border);
-    border-radius: 4px;
-    padding: 8px 10px;
-    color: var(--text);
-    font-size: 12px;
-    font-family: inherit;
-    line-height: 1.6;
-    resize: none;
-    outline: none;
-    box-sizing: border-box;
-    display: block;
-  }
-  .cell-input:focus {
-    border-color: var(--accent2);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-  }
-
-  /* 파일 목록 */
-  .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
-  .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
-  .file-icon { width: 30px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: -0.3px; }
-  .file-icon.pdf { background: rgba(248,113,113,0.15); color: var(--red); }
-  .file-icon.img { background: var(--accent-bg); color: var(--accent2); }
-  .file-icon.txt { background: var(--green-bg); color: var(--green); }
-  .file-meta { flex: 1; min-width: 0; }
-  .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .file-size { font-size: 10px; color: var(--text3); }
-  .file-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 2px 5px; border-radius: 4px; background: none; border: none; line-height: 1; flex-shrink: 0; transition: all 0.15s; }
-  .file-del:hover { color: var(--red); background: var(--red-bg); }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f14;
+    --bg2: #13151c;
+    --bg3: #1a1d27;
+    --bg4: #20242f;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555a6a;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --accent-bg: rgba(99,102,241,0.12);
+    --accent-border: rgba(99,102,241,0.35);
+    --green: #34d399;
+    --green-bg: rgba(52,211,153,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: 14px;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .header-btn:hover:not(:disabled) {
+    background: var(--bg3);
+    color: var(--text);
+    border-color: var(--border2);
+  }
+
+  .header-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .header-btn.primary {
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--accent2);
+  }
+
+  .header-btn.primary:hover:not(:disabled) {
+    background: rgba(99,102,241,0.2);
+    color: #a5b4fc;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    resize: none;
+    line-height: 1.6;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 100px;
+    field-sizing: content;
+  }
+
+  textarea::placeholder { color: var(--text3); }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    background: var(--bg4);
+  }
+
+  /* FILE DROP */
+  .file-drop {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text3);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .file-drop:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+    color: var(--accent2);
+  }
+
+  .file-drop-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* FORM FIELDS */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  label {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  input[type="text"] {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  input[type="text"]::placeholder { color: var(--text3); }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    background: var(--bg4);
+  }
+
+  /* MODEL SELECT */
+  .model-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .model-tab {
+    padding: 7px 6px;
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    color: var(--text3);
+  }
+
+  .model-tab:hover:not(.active) {
+    background: var(--bg3);
+    color: var(--text2);
+  }
+
+  .model-tab.active {
+    background: var(--bg4);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .model-tab-name {
+    font-size: 12px;
+    font-weight: 600;
+    display: block;
+  }
+
+  .model-tab-desc {
+    font-size: 10px;
+    margin-top: 1px;
+    display: block;
+    color: var(--text3);
+  }
+
+  .model-tab.active .model-tab-desc { color: var(--text2); }
+  .model-tab.active.recommended .model-tab-name { color: var(--accent2); }
+
+  .model-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    background: var(--green-bg);
+    color: var(--green);
+    border-radius: 10px;
+    margin-top: 3px;
+    font-weight: 600;
+  }
+
+  /* GENERATE BUTTON */
+  .generate-btn {
+    margin: 12px 16px 16px;
+    width: calc(100% - 32px);
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .generate-btn:hover::before { background: rgba(255,255,255,0.08); }
+  .generate-btn:active { transform: scale(0.98); }
+
+  .generate-btn.loading {
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.35);
+    color: var(--red);
+    cursor: pointer;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(248,113,113,0.25);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* CONTENT AREA */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .status-dot-idle {
+    width: 7px;
+    height: 7px;
+    background: var(--text3);
+    border-radius: 50%;
+  }
+
+  .status-dot-active {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .progress-bar {
+    height: 2px;
+    background: var(--bg4);
+    border-radius: 1px;
+    overflow: hidden;
+    width: 120px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    border-radius: 1px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 40px;
+    color: var(--text3);
+  }
+
+  .empty-icon { font-size: 48px; opacity: 0.3; }
+  .empty-title { font-size: 16px; font-weight: 500; color: var(--text2); }
+
+  .empty-desc {
+    font-size: 13px;
+    color: var(--text3);
+    text-align: center;
+    line-height: 1.7;
+    max-width: 320px;
+  }
+
+  .empty-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .empty-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .step-num {
+    width: 16px;
+    height: 16px;
+    background: var(--accent-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .arrow { color: var(--text3); font-size: 16px; }
+
+  /* RESULT AREA */
+  .result-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .result-area::-webkit-scrollbar { width: 4px; }
+  .result-area::-webkit-scrollbar-track { background: transparent; }
+  .result-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .result-area.visible { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .result-title { font-size: 13px; font-weight: 600; color: var(--text2); }
+
+  .tc-count {
+    font-size: 12px;
+    padding: 3px 10px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    border-radius: 20px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* TC TABLE */
+  .tc-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .tc-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tc-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .tc-table tr:last-child td { border-bottom: none; }
+  .tc-table tr:hover td { background: var(--bg3); }
+
+  .tc-id-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  .result-text { color: var(--text); font-size: 13px; font-weight: 500; line-height: 1.6; }
+
+  .result-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--bg4);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .result-pre { white-space: pre-line; font-size: 12px; color: var(--text); line-height: 1.6; }
+
+  /* LOADING SKELETON */
+  .skeleton-row td { padding: 14px; }
+
+  .skeleton {
+    height: 14px;
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  /* 키프레임 무브먼트 선언 */
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .skeleton.short { width: 60%; }
+  .skeleton.medium { width: 80%; }
+
+  /* API KEY WRAPPER */
+  .header-api-wrap { position: relative; display: flex; align-items: center; }
+  .header-api-wrap input:focus {
+    border-color: var(--accent-border) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important;
+    background: var(--bg4) !important;
+  }
+  .header-api-wrap input.key-ok { border-color: rgba(52,211,153,0.45) !important; }
+
+  .api-conn-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .api-conn-badge.disconnected { background: var(--bg3); border-color: var(--border); color: var(--text3); }
+  .api-conn-badge.connected { background: var(--green-bg); border-color: rgba(52,211,153,0.3); color: var(--green); }
+  .api-conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .api-conn-badge.connected .api-conn-dot { animation: pulse 2s ease-in-out infinite; }
+
+  /* 인라인 편집 */
+  td.editable { cursor: text; }
+  td.editable:hover { background: rgba(99,102,241,0.05) !important; }
+  td.editing { padding: 0 !important; }
+  
+  .cell-input {
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
+    background: var(--bg4);
+    border: 1.5px solid var(--accent-border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+  }
+  .cell-input:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+
+  /* 파일 목록 */
+  .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+  .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
+  .file-icon { width: 30px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: -0.3px; }
+  .file-icon.pdf { background: rgba(248,113,113,0.15); color: var(--red); }
+  .file-icon.img { background: var(--accent-bg); color: var(--accent2); }
+  .file-icon.txt { background: var(--green-bg); color: var(--green); }
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 10px; color: var(--text3); }
+  .file-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 2px 5px; border-radius: 4px; background: none; border: none; line-height: 1; flex-shrink: 0; transition: all 0.15s; }
+  .file-del:hover { color: var(--red); background: var(--red-bg); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="logo-icon">✦</div>
-    <span class="logo-text">TC 자동 생성기</span>
-  </div>
-  <div class="header-right">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <div class="header-api-wrap" id="headerApiWrap">
-        <input
-          type="password"
-          id="headerApiKeyInput"
-          placeholder="Gemini API 키 입력…"
-          autocomplete="off"
-          style="width:200px; background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:6px 36px 6px 10px; color:var(--text); font-size:12px; font-family:'JetBrains Mono',monospace; letter-spacing:0.03em; outline:none; transition:border-color 0.2s, box-shadow 0.2s;"
-        />
-        <button onclick="toggleHeaderKeyVis()" id="headerVisBtn" title="표시/숨김" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text3); font-size:13px; cursor:pointer; padding:2px; line-height:1;">👁</button>
-      </div>
-      <div id="apiConnectionStatus" class="api-conn-badge disconnected" title="미연결">
-        <div class="api-conn-dot"></div>
-        <span id="apiConnLabel">미연결</span>
-      </div>
-    </div>
-    <button class="header-btn" id="copyBtn" onclick="copyToClipboard()" disabled>
-      <span>📋</span> 내용 복사
-    </button>
-    <button class="header-btn primary" id="sheetBtn" onclick="uploadToSheets()" disabled>
-      <span>📊</span> 구글 시트에 추가
-    </button>
-  </div>
+  <div class="header-left">
+    <div class="logo-icon">✦</div>
+    <span class="logo-text">TC 자동 생성기</span>
+  </div>
+  <div class="header-right">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <div class="header-api-wrap" id="headerApiWrap">
+        <input
+          type="password"
+          id="headerApiKeyInput"
+          placeholder="Gemini API 키 입력…"
+          autocomplete="off"
+          style="width:200px; background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:6px 36px 6px 10px; color:var(--text); font-size:12px; font-family:'JetBrains Mono',monospace; letter-spacing:0.03em; outline:none; transition:border-color 0.2s, box-shadow 0.2s;"
+        />
+        <button onclick="toggleHeaderKeyVis()" id="headerVisBtn" title="표시/숨김" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text3); font-size:13px; cursor:pointer; padding:2px; line-height:1;">👁</button>
+      </div>
+      <div id="apiConnectionStatus" class="api-conn-badge disconnected" title="미연결">
+        <div class="api-conn-dot"></div>
+        <span id="apiConnLabel">미연결</span>
+      </div>
+    </div>
+    <button class="header-btn" id="copyBtn" onclick="copyToClipboard()" disabled>
+      <span>📋</span> 내용 복사
+    </button>
+    <button class="header-btn primary" id="sheetBtn" onclick="uploadToSheets()" disabled>
+      <span>📊</span> 구글 시트에 추가
+    </button>
+  </div>
 </header>
 
 <div class="main">
-  <div class="sidebar">
-    <div class="section">
-      <div class="section-label">시나리오 입력</div>
-      <textarea id="scenarioInput" placeholder="기능명, 조건, 예외 케이스 등을 입력하세요." rows="4"></textarea>
-    </div>
+  <div class="sidebar">
+    <div class="section">
+      <div class="section-label">시나리오 입력</div>
+      <textarea id="scenarioInput" placeholder="기능명, 조건, 예외 케이스 등을 입력하세요." rows="4"></textarea>
+    </div>
 
-    <div class="section">
-      <div class="section-label">파일 첨부 <span style="color: var(--text3); font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 400;">— 첨부 시 시나리오 생략 가능</span></div>
-      <div class="file-drop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent-border)'" ondragleave="this.style.borderColor=''" ondrop="handleFileDrop(event);this.style.borderColor=''">
-        <span class="file-drop-icon">📎</span>
-        이미지 · PDF · TXT 드롭 또는 클릭<br>
-        <span style="font-size: 11px; color: var(--text3);">최대 10MB · 여러 파일 가능</span>
-      </div>
-      <input type="file" id="fileInput" accept="image/*,.pdf,.txt" multiple style="display:none" />
-      <div class="file-list" id="fileList"></div>
-    </div>
+    <div class="section">
+      <div class="section-label">파일 첨부 <span style="color: var(--text3); font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 400;">— 첨부 시 시나리오 생략 가능</span></div>
+      <div class="file-drop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent-border)'" ondragleave="this.style.borderColor=''" ondrop="handleFileDrop(event);this.style.borderColor=''">
+        <span class="file-drop-icon">📎</span>
+        이미지 · PDF · TXT 드롭 또는 클릭<br>
+        <span style="font-size: 11px; color: var(--text3);">최대 10MB · 여러 파일 가능</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/*,.pdf,.txt" multiple style="display:none" />
+      <div class="file-list" id="fileList"></div>
+    </div>
 
-    <div class="section">
-      <div class="section-label">식별 정보</div>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div class="form-group">
-          <label>JIRA / 기능명</label>
-          <input type="text" id="jiraInput" placeholder="예: [BPM-52765][미니EPG 노출 보완]" />
-        </div>
+    <div class="section">
+      <div class="section-label">식별 정보</div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="form-group">
+          <label>JIRA / 기능명</label>
+          <input type="text" id="jiraInput" placeholder="예: [BPM-52765][미니EPG 노출 보완]" />
+        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>TC ID</label>
-            <input type="text" id="prefixInput" placeholder="예: TC-epg-001" />
-          </div>
-          <div class="form-group">
-            <label>대분류</label>
-            <input type="text" id="categoryInput" placeholder="예: EPG" />
-          </div>
-        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>TC ID</label>
+            <input type="text" id="prefixInput" placeholder="예: TC-epg-001" />
+          </div>
+          <div class="form-group">
+            <label>대분류</label>
+            <input type="text" id="categoryInput" placeholder="예: EPG" />
+          </div>
+        </div>
 
-        <div class="form-group">
-          <label>시트 탭 이름 <span style="color:var(--red);font-size:11px;margin-left:2px;">*</span></label>
-          <input type="text" id="sheetInput" placeholder="시트 탭 이름을 입력하세요" oninput="onSheetInput()" />
-          <div id="sheetError" style="display:none; font-size:11px; color:var(--red); margin-top:4px;">시트 탭 이름을 입력해야 생성할 수 있어요</div>
-        </div>
-      </div>
-    </div>
+        <div class="form-group">
+          <label>시트 탭 이름 <span style="color:var(--red);font-size:11px;margin-left:2px;">*</span></label>
+          <input type="text" id="sheetInput" placeholder="시트 탭 이름을 입력하세요" oninput="onSheetInput()" />
+          <div id="sheetError" style="display:none; font-size:11px; color:var(--red); margin-top:4px;">시트 탭 이름을 입력해야 생성할 수 있어요</div>
+        </div>
+      </div>
+    </div>
 
-    <div class="section">
-      <div class="section-label">AI 모델</div>
-      <div class="model-tabs">
-        <button class="model-tab" onclick="selectModel(this, 'flash-lite')">
-          <span class="model-tab-name">⚡ 빠름</span>
-          <span class="model-tab-desc">Flash Lite</span>
-        </button>
-        <button class="model-tab active recommended" onclick="selectModel(this, 'flash')">
-          <span class="model-tab-name">⚖️ 균형</span>
-          <span class="model-tab-desc">Flash 2.5</span>
-          <span class="model-badge">추천</span>
-        </button>
-        <button class="model-tab" onclick="selectModel(this, 'pro')">
-          <span class="model-tab-name">✨ 정밀</span>
-          <span class="model-tab-desc">Pro 2.5</span>
-        </button>
-      </div>
-      <div style="margin-top: 8px; font-size: 11px; color: var(--text3); line-height: 1.5;" id="modelDesc">
-        균형 · 무료 · 10 RPM / 500 RPD — TC 생성 기본 추천
-      </div>
-    </div>
+    <div class="section">
+      <div class="section-label">AI 모델</div>
+      <div class="model-tabs">
+        <button class="model-tab" onclick="selectModel(this, 'flash-lite')">
+          <span class="model-tab-name">⚡ 빠름</span>
+          <span class="model-tab-desc">Flash Lite</span>
+        </button>
+        <button class="model-tab active recommended" onclick="selectModel(this, 'flash')">
+          <span class="model-tab-name">⚖️ 균형</span>
+          <span class="model-tab-desc">Flash 2.5</span>
+          <span class="model-badge">추천</span>
+        </button>
+        <button class="model-tab" onclick="selectModel(this, 'pro')">
+          <span class="model-tab-name">✨ 정밀</span>
+          <span class="model-tab-desc">Pro 2.5</span>
+        </button>
+      </div>
+      <div style="margin-top: 8px; font-size: 11px; color: var(--text3); line-height: 1.5;" id="modelDesc">
+        균형 · 무료 · 10 RPM / 500 RPD — TC 생성 기본 추천
+      </div>
+    </div>
 
-    <button class="generate-btn" id="generateBtn" onclick="handleGenerateBtn()">
-      <span>✦</span> TC 초안 생성
-    </button>
-  </div>
+    <button class="generate-btn" id="generateBtn" onclick="handleGenerateBtn()">
+      <span>✦</span> TC 초안 생성
+    </button>
+  </div>
 
-  <div class="content">
-    <div class="status-bar">
-      <div class="status-left">
-        <div class="status-indicator" id="statusIndicator">
-          <div class="status-dot-idle" id="statusDot"></div>
-          <span id="statusText" style="font-size: 12px; color: var(--text3);">대기 중</span>
-        </div>
-        <div class="progress-bar" id="progressBar" style="display: none;">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-      <div style="font-size: 11px; color: var(--text3);" id="tcCountLabel"></div>
-    </div>
+  <div class="content">
+    <div class="status-bar">
+      <div class="status-left">
+        <div class="status-indicator" id="statusIndicator">
+          <div class="status-dot-idle" id="statusDot"></div>
+          <span id="statusText" style="font-size: 12px; color: var(--text3);">대기 중</span>
+        </div>
+        <div class="progress-bar" id="progressBar" style="display: none;">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--text3);" id="tcCountLabel"></div>
+    </div>
 
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">📋</div>
-      <div class="empty-title">TC 초안이 여기에 표시됩니다</div>
-      <div class="empty-desc">시나리오를 입력하거나 예시를 선택한 후<br>TC 초안 생성 버튼을 눌러주세요</div>
-      <div class="empty-steps">
-        <div class="empty-step"><div class="step-num">1</div> 시나리오 입력</div>
-        <div class="arrow">→</div>
-        <div class="empty-step"><div class="step-num">2</div> 생성 클릭</div>
-        <div class="arrow">→</div>
-        <div class="empty-step"><div class="step-num">3</div> 시트 추가</div>
-      </div>
-    </div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">TC 초안이 여기에 표시됩니다</div>
+      <div class="empty-desc">시나리오를 입력하거나 예시를 선택한 후<br>TC 초안 생성 버튼을 눌러주세요</div>
+      <div class="empty-steps">
+        <div class="empty-step"><div class="step-num">1</div> 시나리오 입력</div>
+        <div class="arrow">→</div>
+        <div class="empty-step"><div class="step-num">2</div> 생성 클릭</div>
+        <div class="arrow">→</div>
+        <div class="empty-step"><div class="step-num">3</div> 시트 추가</div>
+      </div>
+    </div>
 
-    <div class="result-area" id="resultArea">
-      <div class="result-header">
-        <span class="result-title">생성된 테스트 케이스</span>
-        <span class="tc-count" id="generatedCount">0개</span>
-      </div>
-      <table class="tc-table" id="tcTable">
-        <thead>
-          <tr>
-            <th>TC ID</th>
-            <th>JIRA</th>
-            <th>대분류</th>
-            <th>중분류</th>
-            <th>소분류</th>
-            <th>시험 항목</th>
-            <th>Pre-Condition</th>
-            <th>시험 절차</th>
-            <th>주요 점검 항목</th>
-          </tr>
-        </thead>
-        <tbody id="tcBody"></tbody>
-      </table>
-    </div>
-  </div>
+    <div class="result-area" id="resultArea">
+      <div class="result-header">
+        <span class="result-title">생성된 테스트 케이스</span>
+        <span class="tc-count" id="generatedCount">0개</span>
+      </div>
+      <table class="tc-table" id="tcTable">
+        <thead>
+          <tr>
+            <th>TC ID</th>
+            <th>JIRA</th>
+            <th>대분류</th>
+            <th>중분류</th>
+            <th>소분류</th>
+            <th>시험 항목</th>
+            <th>Pre-Condition</th>
+            <th>시험 절차</th>
+            <th>주요 점검 항목</th>
+          </tr>
+        </thead>
+        <tbody id="tcBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
-  // 환경변수 분리
-  const GLOBAL_CONFIG = {
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec'
-  };
+  // 환경변수 분리
+  const GLOBAL_CONFIG = {
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec'
+  };
 
-  // 상태 관리
-  let tcData = [];
-  let currentAbortController = null;
-  let attachedFiles = [];
+  // 상태 관리
+  let tcData = [];
+  let currentAbortController = null;
+  let attachedFiles = [];
 
-  const MODEL_CONFIG = {
-    'flash-lite': {
-      id: 'gemini-2.5-flash-lite',
-      thinking: false,
-      generationConfig: { temperature: 0.3, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 }, response_mime_type: 'application/json' }
-    },
-    'flash': {
-      id: 'gemini-2.5-flash',
-      thinking: false,
-      generationConfig: { temperature: 0.3, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 }, response_mime_type: 'application/json' }
-    },
-    'pro': {
-      id: 'gemini-2.5-pro',
-      thinking: true,
-      generationConfig: { temperature: 0.3, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: -1 } }
-    }
-  };
+  const MODEL_CONFIG = {
+    'flash-lite': {
+      id: 'gemini-2.5-flash-lite',
+      thinking: false,
+      generationConfig: { temperature: 0.3, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 }, response_mime_type: 'application/json' }
+    },
+    'flash': {
+      id: 'gemini-2.5-flash',
+      thinking: false,
+      generationConfig: { temperature: 0.3, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 }, response_mime_type: 'application/json' }
+    },
+    'pro': {
+      id: 'gemini-2.5-pro',
+      thinking: true,
+      generationConfig: { temperature: 0.3, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: -1 } }
+    }
+  };
 
-  let currentModelKey = 'flash';
+  let currentModelKey = 'flash';
 
-  const modelDescs = {
-    'flash-lite': '빠름 · 무료 · 15 RPM / 1500 RPD — 단순 TC 대량 생성에 적합',
-    'flash': '균형 · 무료 · 10 RPM / 500 RPD — TC 생성 기본 추천',
-    'pro': '정밀 · 유료 · 2 RPM / 50 RPD — 복잡한 시나리오 정밀 분석'
-  };
+  const modelDescs = {
+    'flash-lite': '빠름 · 무료 · 15 RPM / 1500 RPD — 단순 TC 대량 생성에 적합',
+    'flash': '균형 · 무료 · 10 RPM / 500 RPD — TC 생성 기본 추천',
+    'pro': '정밀 · 유료 · 2 RPM / 50 RPD — 복잡한 시나리오 정밀 분석'
+  };
 
-  function selectModel(btn, key) {
-    document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    currentModelKey = key;
-    document.getElementById('modelDesc').textContent = modelDescs[key];
-  }
+  function selectModel(btn, key) {
+    document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    currentModelKey = key;
+    document.getElementById('modelDesc').textContent = modelDescs[key];
+  }
 
-  // 파일 첨부 및 한국어 UTF-8 디코딩 깨짐 해결
-  async function processFile(file) {
-    return new Promise((res) => {
-      const r = new FileReader();
-      const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
-      if (isText) {
-        r.onload = () => res({ name: file.name, size: file.size, mimeType: 'text/plain', data: r.result, isText: true });
-        r.readAsText(file, 'UTF-8');
-      } else {
-        r.onload = () => res({ name: file.name, size: file.size, mimeType: file.type || 'application/octet-stream', data: r.result.split(',')[1], isText: false });
-        r.readAsDataURL(file);
-      }
-    });
-  }
+  // 파일 첨부 및 한국어 UTF-8 디코딩 깨짐 해결
+  async function processFile(file) {
+    return new Promise((res) => {
+      const r = new FileReader();
+      const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
+      if (isText) {
+        r.onload = () => res({ name: file.name, size: file.size, mimeType: 'text/plain', data: r.result, isText: true });
+        r.readAsText(file, 'UTF-8');
+      } else {
+        r.onload = () => res({ name: file.name, size: file.size, mimeType: file.type || 'application/octet-stream', data: r.result.split(',')[1], isText: false });
+        r.readAsDataURL(file);
+      }
+    });
+  }
 
-  document.getElementById('fileInput').addEventListener('change', async (ev) => {
-    const files = Array.from(ev.target.files);
-    for (const file of files) {
-      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
-      const processed = await processFile(file);
-      attachedFiles.push(processed);
-    }
-    ev.target.value = '';
-    renderFileList();
-  });
+  document.getElementById('fileInput').addEventListener('change', async (ev) => {
+    const files = Array.from(ev.target.files);
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
+      const processed = await processFile(file);
+      attachedFiles.push(processed);
+    }
+    ev.target.value = '';
+    renderFileList();
+  });
 
-  function renderFileList() {
-    const list = document.getElementById('fileList');
-    if (!attachedFiles.length) { list.innerHTML = ''; return; }
-    list.innerHTML = attachedFiles.map((f, i) => {
-      const kb = f.size < 1024*1024 ? Math.round(f.size/1024) + ' KB' : (f.size/1024/1024).toFixed(1) + ' MB';
-      const isPdf = f.mimeType === 'application/pdf';
-      const isImg = f.mimeType.startsWith('image/');
-      const iconClass = isPdf ? 'pdf' : isImg ? 'img' : 'txt';
-      const icon = isPdf ? 'PDF' : isImg ? 'IMG' : 'TXT';
-      return '<div class="file-item">' +
-        '<div class="file-icon ' + iconClass + '">' + icon + '</div>' +
-        '<div class="file-meta">' +
-          '<div class="file-name">' + esc(f.name) + '</div>' +
-          '<div class="file-size">' + kb + ' · ' + (isPdf ? 'PDF' : isImg ? '이미지' : 'TXT') + '</div>' +
-        '</div>' +
-        '<button class="file-del" onclick="removeFile(' + i + ')">✕</button>' +
-      '</div>';
-    }).join('');
-  }
+  function renderFileList() {
+    const list = document.getElementById('fileList');
+    if (!attachedFiles.length) { list.innerHTML = ''; return; }
+    list.innerHTML = attachedFiles.map((f, i) => {
+      const kb = f.size < 1024*1024 ? Math.round(f.size/1024) + ' KB' : (f.size/1024/1024).toFixed(1) + ' MB';
+      const isPdf = f.mimeType === 'application/pdf';
+      const isImg = f.mimeType.startsWith('image/');
+      const iconClass = isPdf ? 'pdf' : isImg ? 'img' : 'txt';
+      const icon = isPdf ? 'PDF' : isImg ? 'IMG' : 'TXT';
+      return '<div class="file-item">' +
+        '<div class="file-icon ' + iconClass + '">' + icon + '</div>' +
+        '<div class="file-meta">' +
+          '<div class="file-name">' + esc(f.name) + '</div>' +
+          '<div class="file-size">' + kb + ' · ' + (isPdf ? 'PDF' : isImg ? '이미지' : 'TXT') + '</div>' +
+        '</div>' +
+        '<button class="file-del" onclick="removeFile(' + i + ')">✕</button>' +
+      '</div>';
+    }).join('');
+  }
 
-  function removeFile(idx) {
-    attachedFiles.splice(idx, 1);
-    renderFileList();
-  }
+  function removeFile(idx) {
+    attachedFiles.splice(idx, 1);
+    renderFileList();
+  }
 
-  const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
+  const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
 제공된 시나리오를 바탕으로 실무에서 즉시 사용 가능한 수준의 상세 테스트 케이스를 설계하십시오.
 
 **지시 사항:**
 1. **형식:** 반드시 순수 JSON 배열만 출력하십시오. 마크다운 코드블록이나 설명은 생략합니다.
 2. **범위:** 정상 케이스뿐만 아니라 경계값, 예외/비정상 상황(Edge Case)을 반드시 포함하십시오.
 3. **구체성:** 'test_steps'는 수행 순서에 따라 번호를 매겨 구체적으로 기술하십시오.
-   'expected_result'는 검증 가능한 기대 반응을 명확히 서술하십시오.
+   'expected_result'는 검증 가능한 기대 반응을 명확히 서술하십시오.
 4. **일관성:** tc_id는 요청한 접두사 기준 순번을 부여하고, jira 필드는 빈 문자열("")로 유지하십시오.
 
 **출력 스키마:**
 [
-  {
-    "tc_id": "TC-001",
-    "jira": "",
-    "category_large": "대분류",
-    "category_mid": "중분류",
-    "category_small": "소분류",
-    "test_item": "시험 항목",
-    "precondition": "전제조건 및 입력 데이터",
-    "test_steps": "1. 단계1\\n2. 단계2",
-    "expected_result": "1. 기대결과1\\n2. 기대결과2"
-  }
+  {
+    "tc_id": "TC-001",
+    "jira": "",
+    "category_large": "대분류",
+    "category_mid": "중분류",
+    "category_small": "소분류",
+    "test_item": "시험 항목",
+    "precondition": "전제조건 및 입력 데이터",
+    "test_steps": "1. 단계1\\n2. 단계2",
+    "expected_result": "1. 기대결과1\\n2. 기대결과2"
+  }
 ]`;
 
-  function handleGenerateBtn() {
-    if (currentAbortController) cancelGenerate();
-    else startGeneration();
-  }
+  function handleGenerateBtn() {
+    if (currentAbortController) cancelGenerate();
+    else startGeneration();
+  }
 
-  async function startGeneration() {
-    const apiKey = document.getElementById('headerApiKeyInput').value.trim();
-    const scenario = document.getElementById('scenarioInput').value.trim();
-    const prefix = document.getElementById('prefixInput').value.trim() || 'TC-001';
-    const category = document.getElementById('categoryInput').value.trim() || '';
-    const sheetVal = document.getElementById('sheetInput').value.trim();
-    const modelCfg = MODEL_CONFIG[currentModelKey];
+  async function startGeneration() {
+    const apiKey = document.getElementById('headerApiKeyInput').value.trim();
+    const scenario = document.getElementById('scenarioInput').value.trim();
+    const prefix = document.getElementById('prefixInput').value.trim() || 'TC-001';
+    const category = document.getElementById('categoryInput').value.trim() || '';
+    const sheetVal = document.getElementById('sheetInput').value.trim();
+    const modelCfg = MODEL_CONFIG[currentModelKey];
 
-    if (!apiKey) { showToast('❗ Gemini API 키를 입력해주세요', 'error'); return; }
-    if (!scenario && !attachedFiles.length) { showToast('❗ 시나리오를 입력하거나 파일을 첨부해주세요', 'error'); return; }
-    if (!sheetVal) {
-      const sheetInput = document.getElementById('sheetInput');
-      sheetInput.style.borderColor = 'rgba(248,113,113,0.5)';
-      document.getElementById('sheetError').style.display = 'block';
-      sheetInput.focus();
-      return;
-    }
+    if (!apiKey) { showToast('❗ Gemini API 키를 입력해주세요', 'error'); return; }
+    if (!scenario && !attachedFiles.length) { showToast('❗ 시나리오를 입력하거나 파일을 첨부해주세요', 'error'); return; }
+    if (!sheetVal) {
+      const sheetInput = document.getElementById('sheetInput');
+      sheetInput.style.borderColor = 'rgba(248,113,113,0.5)';
+      document.getElementById('sheetError').style.display = 'block';
+      sheetInput.focus();
+      return;
+    }
 
-    if (currentAbortController) currentAbortController.abort();
-    currentAbortController = new AbortController();
+    if (currentAbortController) currentAbortController.abort();
+    currentAbortController = new AbortController();
 
-    const btn = document.getElementById('generateBtn');
-    btn.classList.add('loading');
-    btn.innerHTML = '<div class="spinner"></div> 취소';
-    
-    document.getElementById('copyBtn').disabled = true;
-    document.getElementById('sheetBtn').disabled = true;
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('resultArea').classList.remove('visible');
+    const btn = document.getElementById('generateBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="spinner"></div> 취소';
+    
+    document.getElementById('copyBtn').disabled = true;
+    document.getElementById('sheetBtn').disabled = true;
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultArea').classList.remove('visible');
 
-    const dot = document.getElementById('statusDot');
-    dot.className = 'status-dot-active';
-    
-    document.getElementById('statusText').textContent = 'Gemini가 TC를 생성하는 중...';
-    document.getElementById('statusText').style.color = 'var(--green)';
+    const dot = document.getElementById('statusDot');
+    dot.className = 'status-dot-active';
+    
+    document.getElementById('statusText').textContent = 'Gemini가 TC를 생성하는 중...';
+    document.getElementById('statusText').style.color = 'var(--green)';
 
-    const progressBar = document.getElementById('progressBar');
-    const progressFill = document.getElementById('progressFill');
-    progressBar.style.display = 'block';
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-      progress = Math.min(progress + Math.random() * 8, 85);
-      progressFill.style.width = progress + '%';
-    }, 400);
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    progressBar.style.display = 'block';
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress = Math.min(progress + Math.random() * 8, 85);
+      progressFill.style.width = progress + '%';
+    }, 400);
 
-    const tbody = document.getElementById('tcBody');
-    tbody.innerHTML = Array(4).fill(0).map(() =>
-      '<tr class="skeleton-row">' +
-        Array(9).fill('<td><div class="skeleton medium"></div></td>').join('') +
-      '</tr>'
-    ).join('');
-    document.getElementById('resultArea').classList.add('visible');
+    const tbody = document.getElementById('tcBody');
+    tbody.innerHTML = Array(4).fill(0).map(() =>
+      '<tr class="skeleton-row">' +
+        Array(9).fill('<td><div class="skeleton medium"></div></td>').join('') +
+      '</tr>'
+    ).join('');
+    document.getElementById('resultArea').classList.add('visible');
 
-    try {
-      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelCfg.id + ':generateContent?key=' + apiKey;
-      const parts = [];
-      const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
-        (scenario ? '\n\n=== 시나리오 ===\n' + scenario : '\n\n첨부된 파일을 분석하여 TC를 생성하세요.');
-      parts.push({ text: textContent });
+    try {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelCfg.id + ':generateContent?key=' + apiKey;
+      const parts = [];
+      const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
+        (scenario ? '\n\n=== 시나리오 ===\n' + scenario : '\n\n첨부된 파일을 분석하여 TC를 생성하세요.');
+      parts.push({ text: textContent });
 
-      for (const f of attachedFiles) {
-        if (f.isText) {
-          parts.push({ text: '\n=== 첨부 파일: ' + f.name + ' ===\n' + f.data });
-        } else {
-          parts.push({ inline_data: { mime_type: f.mimeType, data: f.data } });
-        }
-      }
+      for (const f of attachedFiles) {
+        if (f.isText) {
+          parts.push({ text: '\n=== 첨부 파일: ' + f.name + ' ===\n' + f.data });
+        } else {
+          parts.push({ inline_data: { mime_type: f.mimeType, data: f.data } });
+        }
+      }
 
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: currentAbortController.signal,
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ parts }],
-          generationConfig: modelCfg.generationConfig
-        })
-      });
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: currentAbortController.signal,
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts }],
+          generationConfig: modelCfg.generationConfig
+        })
+      });
 
-      if (!res.ok) {
-        const err = await res.json();
-        const msg = err.error?.message || 'HTTP ' + res.status;
-        if (res.status === 403 || res.status === 401) throw new Error('API 키 오류: 키를 확인해주세요');
-        if (res.status === 429) throw new Error('요청 한도 초과: 잠시 후 다시 시도해주세요');
-        throw new Error(msg);
-      }
+      if (!res.ok) {
+        const err = await res.json();
+        const msg = err.error?.message || 'HTTP ' + res.status;
+        if (res.status === 403 || res.status === 401) throw new Error('API 키 오류: 키를 확인해주세요');
+        if (res.status === 429) throw new Error('요청 한도 초과: 잠시 후 다시 시도해주세요');
+        throw new Error(msg);
+      }
 
-      const data = await res.json();
-      const resParts = data.candidates?.[0]?.content?.parts || [];
-      const raw = resParts.filter(p => p.text && !p.thought).map(p => p.text).join('');
+      const data = await res.json();
+      const resParts = data.candidates?.[0]?.content?.parts || [];
+      const raw = resParts.filter(p => p.text && !p.thought).map(p => p.text).join('');
 
-      let parsed = null;
-      const cleaned = raw.replace(/```json|```/g, '').trim();
-      
-      try {
-        parsed = JSON.parse(cleaned);
-      } catch(e) {
-        const matches = [...cleaned.matchAll(/\[[\s\S]*?\]/g)];
-        for (const m of matches) {
-          try { 
-            const arr = JSON.parse(m[0]); 
-            if (Array.isArray(arr) && arr.length > 0 && arr[0].tc_id) { parsed = arr; break; } 
-          } catch(err) {}
-        }
-      }
+      let parsed = null;
+      const cleaned = raw.replace(/```json|```/g, '').trim();
+      
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch(e) {
+        const matches = [...cleaned.matchAll(/\[[\s\S]*?\]/g)];
+        for (const m of matches) {
+          try { 
+            const arr = JSON.parse(m[0]); 
+            if (Array.isArray(arr) && arr.length > 0 && arr[0].tc_id) { parsed = arr; break; } 
+          } catch(err) {}
+        }
+      }
 
-      if (!parsed || !parsed.length) throw new Error('TC 파싱에 실패했습니다. 시나리오 내용을 조금 더 구체적으로 보완해보세요.');
+      if (!parsed || !parsed.length) throw new Error('TC 파싱에 실패했습니다. 시나리오 내용을 조금 더 구체적으로 보완해보세요.');
 
-      tcData = parsed.map(tc => ({ ...tc, jira: '' }));
-      clearInterval(progressInterval);
-      progressFill.style.width = '100%';
-      
-      setTimeout(() => {
-        progressBar.style.display = 'none';
-        progressFill.style.width = '0%';
-        renderTCs();
-        document.getElementById('generatedCount').textContent = tcData.length + '개';
-        document.getElementById('tcCountLabel').textContent = '총 ' + tcData.length + '개 생성됨';
-        document.getElementById('copyBtn').disabled = false;
-        document.getElementById('sheetBtn').disabled = false;
-        dot.className = 'status-dot-idle';
-        document.getElementById('statusText').textContent = tcData.length + '개 TC 생성 완료';
-        document.getElementById('statusText').style.color = 'var(--text3)';
-        showToast('✅ TC ' + tcData.length + '개 생성 완료!', 'success');
-      }, 300);
+      tcData = parsed.map(tc => ({ ...tc, jira: '' }));
+      clearInterval(progressInterval);
+      progressFill.style.width = '100%';
+      
+      setTimeout(() => {
+        progressBar.style.display = 'none';
+        progressFill.style.width = '0%';
+        renderTCs();
+        document.getElementById('generatedCount').textContent = tcData.length + '개';
+        document.getElementById('tcCountLabel').textContent = '총 ' + tcData.length + '개 생성됨';
+        document.getElementById('copyBtn').disabled = false;
+        document.getElementById('sheetBtn').disabled = false;
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = tcData.length + '개 TC 생성 완료';
+        document.getElementById('statusText').style.color = 'var(--text3)';
+        showToast('✅ TC ' + tcData.length + '개 생성 완료!', 'success');
+      }, 300);
 
-    } catch(e) {
-      clearInterval(progressInterval);
-      progressBar.style.display = 'none';
-      tbody.innerHTML = ''; 
-      
-      if (e.name === 'AbortError') {
-        dot.className = 'status-dot-idle';
-        document.getElementById('statusText').textContent = '생성 취소됨';
-        document.getElementById('statusText').style.color = 'var(--text3)';
-        showToast('⛔ 생성이 취소되었습니다', '');
-        if (tcData.length) {
-          renderTCs();
-          document.getElementById('resultArea').classList.add('visible');
-          document.getElementById('copyBtn').disabled = false; 
-          document.getElementById('sheetBtn').disabled = false; 
-        } else {
-          document.getElementById('resultArea').classList.remove('visible');
-          document.getElementById('emptyState').style.display = 'flex';
-        }
-      } else {
-        dot.className = 'status-dot-idle';
-        document.getElementById('statusText').textContent = '오류: ' + e.message;
-        document.getElementById('statusText').style.color = 'var(--red)';
-        showToast('❌ ' + e.message, 'error');
-        
-        if (tcData.length) {
-          renderTCs();
-          document.getElementById('resultArea').classList.add('visible');
-          document.getElementById('copyBtn').disabled = false; 
-          document.getElementById('sheetBtn').disabled = false;
-        } else {
-          document.getElementById('resultArea').classList.remove('visible');
-          document.getElementById('emptyState').style.display = 'flex';
-        }
-      }
-    } finally {
-      btn.classList.remove('loading');
-      btn.innerHTML = '<span>✦</span> TC 초안 생성';
-      currentAbortController = null;
-    }
-  }
+    } catch(e) {
+      clearInterval(progressInterval);
+      progressBar.style.display = 'none';
+      tbody.innerHTML = ''; 
+      
+      if (e.name === 'AbortError') {
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = '생성 취소됨';
+        document.getElementById('statusText').style.color = 'var(--text3)';
+        showToast('⛔ 생성이 취소되었습니다', '');
+        if (tcData.length) {
+          renderTCs();
+          document.getElementById('resultArea').classList.add('visible');
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false; 
+        } else {
+          document.getElementById('resultArea').classList.remove('visible');
+          document.getElementById('emptyState').style.display = 'flex';
+        }
+      } else {
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = '오류: ' + e.message;
+        document.getElementById('statusText').style.color = 'var(--red)';
+        showToast('❌ ' + e.message, 'error');
+        
+        if (tcData.length) {
+          renderTCs();
+          document.getElementById('resultArea').classList.add('visible');
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false;
+        } else {
+          document.getElementById('resultArea').classList.remove('visible');
+          document.getElementById('emptyState').style.display = 'flex';
+        }
+      }
+    } finally {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>✦</span> TC 초안 생성';
+      currentAbortController = null;
+    }
+  }
 
-  function cancelGenerate() {
-    if (currentAbortController) currentAbortController.abort();
-  }
+  function cancelGenerate() {
+    if (currentAbortController) currentAbortController.abort();
+  }
 
-  // HTML 안전 이스케이프
-  function esc(s) {
-    return String(s||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#x27;')
-      .replace(/\n/g,'<br>');
-  }
+  // HTML 안전 이스케이프
+  function esc(s) {
+    return String(s||'')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#x27;')
+      .replace(/\n/g,'<br>');
+  }
 
-  function renderTCs() {
-    const tbody = document.getElementById('tcBody');
-    tbody.innerHTML = tcData.map((tc, i) => {
-      const ed = (field, display, isMulti) =>
-        '<td class="editable" data-row="' + i + '" data-field="' + field + '" data-multi="' + isMulti + '" onclick="startEdit(this)">' + display + '</td>';
-      return '<tr>' +
-        ed('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
-        ed('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
-        ed('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
-        ed('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
-        ed('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
-        ed('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
-        ed('precondition', '<span class="result-pre">' + esc(tc.precondition) + '</span>', true) +
-        ed('test_steps', '<span class="result-pre">' + esc(tc.test_steps) + '</span>', true) +
-        ed('expected_result', '<span class="result-pre">' + esc(tc.expected_result) + '</span>', true) +
-      '</tr>';
-    }).join('');
-  }
+  function renderTCs() {
+    const tbody = document.getElementById('tcBody');
+    tbody.innerHTML = tcData.map((tc, i) => {
+      const ed = (field, display, isMulti) =>
+        '<td class="editable" data-row="' + i + '" data-field="' + field + '" data-multi="' + isMulti + '" onclick="startEdit(this)">' + display + '</td>';
+      return '<tr>' +
+        ed('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
+        ed('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
+        ed('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
+        ed('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
+        ed('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
+        ed('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
+        ed('precondition', '<span class="result-pre">' + esc(tc.precondition) + '</span>', true) +
+        ed('test_steps', '<span class="result-pre">' + esc(tc.test_steps) + '</span>', true) +
+        ed('expected_result', '<span class="result-pre">' + esc(tc.expected_result) + '</span>', true) +
+      '</tr>';
+    }).join('');
+  }
 
-  function startEdit(td) {
-    const rowIdx = parseInt(td.dataset.row);
-    const field = td.dataset.field;
-    const isMulti = td.dataset.multi === 'true';
-    if (td.classList.contains('editing')) return;
-    const curVal = tcData[rowIdx][field] || '';
-    td.classList.add('editing');
+  function startEdit(td) {
+    const rowIdx = parseInt(td.dataset.row);
+    const field = td.dataset.field;
+    const isMulti = td.dataset.multi === 'true';
+    if (td.classList.contains('editing')) return;
+    const curVal = tcData[rowIdx][field] || '';
+    td.classList.add('editing');
 
-    const el = document.createElement(isMulti ? 'textarea' : 'input');
-    el.className = 'cell-input';
-    el.value = curVal;
-    if (isMulti) {
-      el.rows = Math.max(3, curVal.split('\n').length + 1);
-      el.style.minHeight = (el.rows * 20 + 16) + 'px';
-    }
-    td.innerHTML = '';
-    td.appendChild(el);
-    el.focus();
+    const el = document.createElement(isMulti ? 'textarea' : 'input');
+    el.className = 'cell-input';
+    el.value = curVal;
+    if (isMulti) {
+      el.rows = Math.max(3, curVal.split('\n').length + 1);
+      el.style.minHeight = (el.rows * 20 + 16) + 'px';
+    }
+    td.innerHTML = '';
+    td.appendChild(el);
+    el.focus();
 
-    const commit = () => {
-      const newVal = el.value;
-      tcData[rowIdx][field] = newVal;
-      td.classList.remove('editing');
-      if (field === 'tc_id') td.innerHTML = '<span class="tc-id-cell">' + esc(newVal) + '</span>';
-      else if (field === 'jira') td.innerHTML = '<span style="font-size:11px;color:var(--accent2)">' + esc(newVal) + '</span>';
-      else if (['category_large','category_mid','category_small'].includes(field)) td.innerHTML = '<span class="result-tag">' + esc(newVal) + '</span>';
-      else if (field === 'test_item') td.innerHTML = '<span class="result-text">' + esc(newVal) + '</span>';
-      else td.innerHTML = '<span class="result-pre">' + esc(newVal) + '</span>';
-    };
+    const commit = () => {
+      const newVal = el.value;
+      tcData[rowIdx][field] = newVal;
+      td.classList.remove('editing');
+      if (field === 'tc_id') td.innerHTML = '<span class="tc-id-cell">' + esc(newVal) + '</span>';
+      else if (field === 'jira') td.innerHTML = '<span style="font-size:11px;color:var(--accent2)">' + esc(newVal) + '</span>';
+      else if (['category_large','category_mid','category_small'].includes(field)) td.innerHTML = '<span class="result-tag">' + esc(newVal) + '</span>';
+      else if (field === 'test_item') td.innerHTML = '<span class="result-text">' + esc(newVal) + '</span>';
+      else td.innerHTML = '<span class="result-pre">' + esc(newVal) + '</span>';
+    };
 
-    el.addEventListener('blur', commit);
-    el.addEventListener('keydown', e => {
-      if (!isMulti && e.key === 'Enter') { e.preventDefault(); el.blur(); }
-      if (e.key === 'Escape') { el.value = curVal; el.blur(); }
-    });
-  }
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', e => {
+      if (!isMulti && e.key === 'Enter') { e.preventDefault(); el.blur(); }
+      if (e.key === 'Escape') { el.value = curVal; el.blur(); }
+    });
+  }
 
-  function onSheetInput() {
-    const val = document.getElementById('sheetInput').value.trim();
-    if (val) {
-      document.getElementById('sheetInput').style.borderColor = '';
-      document.getElementById('sheetError').style.display = 'none';
-    }
-  }
+  function onSheetInput() {
+    const val = document.getElementById('sheetInput').value.trim();
+    if (val) {
+      document.getElementById('sheetInput').style.borderColor = '';
+      document.getElementById('sheetError').style.display = 'none';
+    }
+  }
 
-  async function copyToClipboard() {
-    if (!tcData.length) return;
-    const rows = tcData.map(tc => [
-      tc.tc_id||'', tc.jira||'', tc.category_large||'', tc.category_mid||'',
-      tc.category_small||'', tc.test_item||'', tc.precondition||'',
-      tc.test_steps||'', tc.expected_result||''
-    ].map(v => {
-      const clean = v.replace(/\t/g, ' ');
-      return clean.includes('\n') ? '"' + clean.replace(/"/g, '""') + '"' : clean;
-    }).join('\t'));
-    const tsv = rows.join('\n');
-    try {
-      await navigator.clipboard.writeText(tsv);
-      showToast('📋 복사 완료! 구글 시트에서 원하는 셀 클릭 후 Ctrl+V 하세요.', 'success');
-    } catch(e) {
-      const ta = document.createElement('textarea');
-      ta.value = tsv; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('📋 복사 완료! 구글 시트에서 Ctrl+V 하세요.', 'success');
-    }
-  }
+  async function copyToClipboard() {
+    if (!tcData.length) return;
+    const rows = tcData.map(tc => [
+      tc.tc_id||'', tc.jira||'', tc.category_large||'', tc.category_mid||'',
+      tc.category_small||'', tc.test_item||'', tc.precondition||'',
+      tc.test_steps||'', tc.expected_result||''
+    ].map(v => {
+      const clean = v.replace(/\t/g, ' ');
+      return clean.includes('\n') ? '"' + clean.replace(/"/g, '""') + '"' : clean;
+    }).join('\t'));
+    const tsv = rows.join('\n');
+    try {
+      await navigator.clipboard.writeText(tsv);
+      showToast('📋 복사 완료! 구글 시트에서 원하는 셀 클릭 후 Ctrl+V 하세요.', 'success');
+    } catch(e) {
+      const ta = document.createElement('textarea');
+      ta.value = tsv; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('📋 복사 완료! 구글 시트에서 Ctrl+V 하세요.', 'success');
+    }
+  }
 
-  async function uploadToSheets() {
-    const sheetName = document.getElementById('sheetInput').value.trim();
-    const jiraTitle = document.getElementById('jiraInput').value.trim();
-    
-    // 1. 유효성 검사 (입력값 확인)
-    if (!tcData || tcData.length === 0) { 
-      showToast('❗ 먼저 TC를 생성해주세요', 'error'); 
-      return; 
-    }
-    if (!sheetName) { 
-      showToast('❗ 시트 탭 이름을 입력해주세요', 'error'); 
-      return; 
-    }
+  async function uploadToSheets() {
+    const sheetName = document.getElementById('sheetInput').value.trim();
+    const jiraTitle = document.getElementById('jiraInput').value.trim();
+    if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
+    if (!sheetName) { showToast('❗ 시트 탭 이름을 입력해주세요', 'error'); return; }
 
-    const btn = document.getElementById('sheetBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span>⏳</span> 업로드 중...';
+    const btn = document.getElementById('sheetBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> 업로드 중...';
 
-    try {
-      const payload = { sheetName, jiraTitle, tcData };
-      
-      // 2. Content-Type을 application/json으로 변경
-      const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      if (!res.ok) throw new Error('서버 연결 실패 (HTTP ' + res.status + ')');
-      
-      const result = await res.json();
-      
-      // 3. 에러 메시지 추출 시 안전성 확보
-      if (result.status === 'error') {
-        throw new Error(result.message || '알 수 없는 서버 오류가 발생했습니다.');
-      }
-      
-      showToast('📊 "' + result.sheetName + '" 탭으로 업로드 완료!', 'success');
-      
-    } catch(e) {
-      // 4. 에러 발생 시 사용자에게 구체적인 메시지 노출
-      showToast('❌ 업로드 실패: ' + e.message, 'error');
-      console.error('Upload Error:', e);
-    } finally {
-      // 5. 성공/실패 여부와 관계없이 버튼 다시 활성화 (UI 데드락 방지)
-      btn.disabled = false;
-      btn.innerHTML = '<span>📊</span> 구글 시트에 추가';
-    }
-  }
-  function showToast(msg, type) {
-    let toast = document.getElementById('appToast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'appToast';
-      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);display:none;align-items:center;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:380px;line-height:1.5;';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.style.display = 'flex';
-    toast.style.borderColor = type === 'success' ? 'rgba(52,211,153,0.35)' : type === 'error' ? 'rgba(248,113,113,0.35)' : 'var(--border2)';
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
-  }
+    try {
+      const payload = { sheetName, jiraTitle, tcData };
+      
+      const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) throw new Error('네트워크 응답이 올바르지 않습니다. (HTTP ' + res.status + ')');
+      const result = await res.json();
+      if (result.status === 'error') throw new Error(result.message);
+      
+      showToast('📊 "' + result.sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
+    } catch(e) {
+      showToast('❌ 업로드 실패: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>📊</span> 구글 시트에 추가';
+    }
+  }
 
-  // 로컬 브라우저 런타임 메모리 격리
-  document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
-  let headerKeyVisible = false;
+  function showToast(msg, type) {
+    let toast = document.getElementById('appToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'appToast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);display:none;align-items:center;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:380px;line-height:1.5;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'flex';
+    toast.style.borderColor = type === 'success' ? 'rgba(52,211,153,0.35)' : type === 'error' ? 'rgba(248,113,113,0.35)' : 'var(--border2)';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+  }
 
-  function onHeaderKeyInput() {
-    const val = document.getElementById('headerApiKeyInput').value.trim();
-    const input = document.getElementById('headerApiKeyInput');
-    const badge = document.getElementById('apiConnectionStatus');
-    const label = document.getElementById('apiConnLabel');
-    
-    if (val.startsWith('AIza') && val.length > 10) {
-      input.classList.add('key-ok');
-      badge.className = 'api-conn-badge connected';
-      label.textContent = '연결됨';
-    } else {
-      input.classList.remove('key-ok');
-      badge.className = 'api-conn-badge disconnected';
-      label.textContent = val.length > 0 ? '키 확인 중' : '미연결';
-    }
-  }
+  // 로컬 브라우저 런타임 메모리 격리
+  document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
+  let headerKeyVisible = false;
 
-  function toggleHeaderKeyVis() {
-    headerKeyVisible = !headerKeyVisible;
-    const input = document.getElementById('headerApiKeyInput');
-    input.type = headerKeyVisible ? 'text' : 'password';
-    document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
-  }
+  function onHeaderKeyInput() {
+    const val = document.getElementById('headerApiKeyInput').value.trim();
+    const input = document.getElementById('headerApiKeyInput');
+    const badge = document.getElementById('apiConnectionStatus');
+    const label = document.getElementById('apiConnLabel');
+    
+    if (val.startsWith('AIza') && val.length > 10) {
+      input.classList.add('key-ok');
+      badge.className = 'api-conn-badge connected';
+      label.textContent = '연결됨';
+    } else {
+      input.classList.remove('key-ok');
+      badge.className = 'api-conn-badge disconnected';
+      label.textContent = val.length > 0 ? '키 확인 중' : '미연결';
+    }
+  }
 
-  async function handleFileDrop(ev) {
-    ev.preventDefault();
-    const files = Array.from(ev.dataTransfer.files).filter(f =>
-      f.type.startsWith('image/') || f.type === 'application/pdf' || f.type === 'text/plain' || f.name.endsWith('.txt')
-    );
-    if (!files.length) { showToast('❗ 이미지, PDF, TXT 파일만 지원합니다', 'error'); return; }
-    for (const file of files) {
-      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
-      const processed = await processFile(file);
-      attachedFiles.push(processed);
-    }
-    renderFileList();
-  }
+  function toggleHeaderKeyVis() {
+    headerKeyVisible = !headerKeyVisible;
+    const input = document.getElementById('headerApiKeyInput');
+    input.type = headerKeyVisible ? 'text' : 'password';
+    document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
+  }
 
-  // 🔒 단축키 중복 패치: 비동기 생성 파이프라인 연산 중 단축키 연타 입력 유입 무시 처리
-  document.addEventListener('keydown', ev => {
-    if (ev.ctrlKey && ev.key === 'Enter') {
-      if (currentAbortController) { 
-       showToast('⚠️ 이미 생성 중입니다.', 'error');
-       return;
-      }
-      startGeneration();
-    }
-  });
+  async function handleFileDrop(ev) {
+    ev.preventDefault();
+    const files = Array.from(ev.dataTransfer.files).filter(f =>
+      f.type.startsWith('image/') || f.type === 'application/pdf' || f.type === 'text/plain' || f.name.endsWith('.txt')
+    );
+    if (!files.length) { showToast('❗ 이미지, PDF, TXT 파일만 지원합니다', 'error'); return; }
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
+      const processed = await processFile(file);
+      attachedFiles.push(processed);
+    }
+    renderFileList();
+  }
+
+  // 🔒 단축키 중복 패치: 비동기 생성 파이프라인 연산 중 단축키 연타 입력 유입 무시 처리
+  document.addEventListener('keydown', ev => {
+    if (ev.ctrlKey && ev.key === 'Enter') {
+      if (currentAbortController) return; 
+      startGeneration();
+    }
+  });
 </script>
 </body>
 </html>
