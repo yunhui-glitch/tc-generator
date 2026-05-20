@@ -586,6 +586,12 @@
     border-radius: 4px;
   }
 
+  /* 🛠️ 신규 반영: 누락되었던 Shimmer 무빙 키프레임 애니메이션 선언 복원 */
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
   .skeleton.short { width: 60%; }
   .skeleton.medium { width: 80%; }
 
@@ -815,17 +821,16 @@
 </div>
 
 <script>
-  // ── ⑤ 환경변수 분리 패치 ──
+  // 환경변수 분리
   const GLOBAL_CONFIG = {
     APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec'
   };
 
-  // ── 상태 ──
+  // 상태 관리
   let tcData = [];
   let currentAbortController = null;
   let attachedFiles = [];
 
-  // ── 모델 설정 ──
   const MODEL_CONFIG = {
     'flash-lite': {
       id: 'gemini-2.5-flash-lite',
@@ -859,7 +864,7 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  // ── ③ 파일 첨부 및 한글 깨짐 원천 방어 패치 ──
+  // 파일 청부 및 인코딩 복원 (UTF-8 한국어 지원)
   async function processFile(file) {
     return new Promise((res) => {
       const r = new FileReader();
@@ -910,7 +915,6 @@
     renderFileList();
   }
 
-  // ── 시스템 프롬프트 ──
   const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
 제공된 시나리오를 바탕으로 실무에서 즉시 사용 가능한 수준의 상세 테스트 케이스를 설계하십시오.
 
@@ -941,7 +945,6 @@
     else startGeneration();
   }
 
-  // ── TC 생성 (Gemini API Call) ──
   async function startGeneration() {
     const apiKey = document.getElementById('headerApiKeyInput').value.trim();
     const scenario = document.getElementById('scenarioInput').value.trim();
@@ -975,7 +978,6 @@
     const dot = document.getElementById('statusDot');
     dot.className = 'status-dot-active';
     
-    // UI/UX 패치: 새로운 요청 진입 시 직전 에러 문자열의 빨간색 스타일 강제 초기화
     document.getElementById('statusText').textContent = 'Gemini가 TC를 생성하는 중...';
     document.getElementById('statusText').style.color = 'var(--green)';
 
@@ -1071,6 +1073,8 @@
 
     } catch(e) {
       clearInterval(progressInterval);
+      
+      // 🛠️ UI/UX 결함 패치: 취소 및 모든 오류 시점에 프로그레스 애니메이션 영역 명확히 차단 숨김 [cite: 1193, 1194]
       progressBar.style.display = 'none';
       tbody.innerHTML = ''; 
       
@@ -1093,8 +1097,17 @@
         document.getElementById('statusText').textContent = '오류: ' + e.message;
         document.getElementById('statusText').style.color = 'var(--red)';
         showToast('❌ ' + e.message, 'error');
-        document.getElementById('resultArea').classList.remove('visible');
-        document.getElementById('emptyState').style.display = 'flex';
+        
+        // 🛠️ UX 복원 패치: 에러 시 우측 메인 결과 컴포넌트가 툭 끊겨 공백으로 밀리는 현상 대응 
+        if (tcData.length) {
+          renderTCs();
+          document.getElementById('resultArea').classList.add('visible');
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false;
+        } else {
+          document.getElementById('resultArea').classList.remove('visible');
+          document.getElementById('emptyState').style.display = 'flex';
+        }
       }
     } finally {
       btn.classList.remove('loading');
@@ -1107,7 +1120,6 @@
     if (currentAbortController) currentAbortController.abort();
   }
 
-  // ── ④ 보안 기능 강화 이스케이프 함수 패치 ──
   function esc(s) {
     return String(s||'')
       .replace(/&/g,'&amp;')
@@ -1251,7 +1263,7 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // ── ① 메모리 기반 API 변수 제어 패치 (sessionStorage 완전 청소) ──
+  // 메모리 기반 자산 보안 격리
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
   let headerKeyVisible = false;
 
