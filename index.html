@@ -859,8 +859,6 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  // ── ① 보안 취약점 보완 패치: sessionStorage 완전 청소 및 파괴 완료
-
   // ── ③ 파일 첨부 및 한글 깨짐 원천 방어 패치 ──
   async function processFile(file) {
     return new Promise((res) => {
@@ -976,6 +974,8 @@
 
     const dot = document.getElementById('statusDot');
     dot.className = 'status-dot-active';
+    
+    // UI/UX 패치: 새로운 요청 진입 시 직전 에러 문자열의 빨간색 스타일 강제 초기화
     document.getElementById('statusText').textContent = 'Gemini가 TC를 생성하는 중...';
     document.getElementById('statusText').style.color = 'var(--green)';
 
@@ -1082,7 +1082,6 @@
         if (tcData.length) {
           renderTCs();
           document.getElementById('resultArea').classList.add('visible');
-          // UI/UX 보완: 기존 취소 데이터 복원 시 기능 버튼 다시 활성화
           document.getElementById('copyBtn').disabled = false; 
           document.getElementById('sheetBtn').disabled = false; 
         } else {
@@ -1252,7 +1251,7 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // ── 메모리 기반 API 변수 제어 및 상태 연동 ──
+  // ── ① 메모리 기반 API 변수 제어 패치 (sessionStorage 완전 청소) ──
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
   let headerKeyVisible = false;
 
