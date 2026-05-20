@@ -859,6 +859,8 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
+  // ── ① 보안 취약점 보완 패치: sessionStorage 완전 청소 및 파괴 완료
+
   // ── ③ 파일 첨부 및 한글 깨짐 원천 방어 패치 ──
   async function processFile(file) {
     return new Promise((res) => {
@@ -1070,8 +1072,6 @@
     } catch(e) {
       clearInterval(progressInterval);
       progressBar.style.display = 'none';
-      
-      // ② 취소/오류 발생 시 스켈레톤 노출 잔류 차단 패치
       tbody.innerHTML = ''; 
       
       if (e.name === 'AbortError') {
@@ -1082,6 +1082,9 @@
         if (tcData.length) {
           renderTCs();
           document.getElementById('resultArea').classList.add('visible');
+          // UI/UX 보완: 기존 취소 데이터 복원 시 기능 버튼 다시 활성화
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false; 
         } else {
           document.getElementById('resultArea').classList.remove('visible');
           document.getElementById('emptyState').style.display = 'flex';
@@ -1215,7 +1218,6 @@
     try {
       const payload = { sheetName, jiraTitle, tcData };
       
-      // ⑤ 최상단 글로벌 상수를 바인딩하여 전송
       const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
@@ -1250,7 +1252,7 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // ── ① 메모리 기반 API 변수 제어 패치 (sessionStorage 완전 청소) ──
+  // ── 메모리 기반 API 변수 제어 및 상태 연동 ──
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
   let headerKeyVisible = false;
 
