@@ -87,38 +87,6 @@
     gap: 10px;
   }
 
-  .api-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    background: var(--green-bg);
-    border: 1px solid rgba(52,211,153,0.25);
-    border-radius: 20px;
-    font-size: 12px;
-    color: var(--green);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .api-status:hover {
-    background: rgba(52,211,153,0.18);
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
   .header-btn {
     display: flex;
     align-items: center;
@@ -210,33 +178,11 @@
   }
 
   textarea::placeholder { color: var(--text3); }
-
   textarea:focus {
     outline: none;
     border-color: var(--accent-border);
     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
     background: var(--bg4);
-  }
-
-  .textarea-hint {
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--text3);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  kbd {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px 5px;
-    background: var(--bg4);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text2);
   }
 
   /* FILE DROP */
@@ -299,7 +245,6 @@
   }
 
   input[type="text"]::placeholder { color: var(--text3); }
-
   input[type="text"]:focus {
     outline: none;
     border-color: var(--accent-border);
@@ -354,13 +299,8 @@
     color: var(--text3);
   }
 
-  .model-tab.active .model-tab-desc {
-    color: var(--text2);
-  }
-
-  .model-tab.active.recommended .model-tab-name {
-    color: var(--accent2);
-  }
+  .model-tab.active .model-tab-desc { color: var(--text2); }
+  .model-tab.active.recommended .model-tab-name { color: var(--accent2); }
 
   .model-badge {
     display: inline-block;
@@ -404,13 +344,8 @@
     transition: background 0.2s;
   }
 
-  .generate-btn:hover::before {
-    background: rgba(255,255,255,0.08);
-  }
-
-  .generate-btn:active {
-    transform: scale(0.98);
-  }
+  .generate-btn:hover::before { background: rgba(255,255,255,0.08); }
+  .generate-btn:active { transform: scale(0.98); }
 
   .generate-btn.loading {
     background: rgba(248,113,113,0.15);
@@ -428,9 +363,7 @@
     animation: spin 0.7s linear infinite;
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* CONTENT AREA */
   .content {
@@ -508,16 +441,8 @@
     color: var(--text3);
   }
 
-  .empty-icon {
-    font-size: 48px;
-    opacity: 0.3;
-  }
-
-  .empty-title {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text2);
-  }
+  .empty-icon { font-size: 48px; opacity: 0.3; }
+  .empty-title { font-size: 16px; font-weight: 500; color: var(--text2); }
 
   .empty-desc {
     font-size: 13px;
@@ -560,10 +485,7 @@
     flex-shrink: 0;
   }
 
-  .arrow {
-    color: var(--text3);
-    font-size: 16px;
-  }
+  .arrow { color: var(--text3); font-size: 16px; }
 
   /* RESULT AREA */
   .result-area {
@@ -576,7 +498,6 @@
   .result-area::-webkit-scrollbar { width: 4px; }
   .result-area::-webkit-scrollbar-track { background: transparent; }
   .result-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
   .result-area.visible { display: block; }
 
   .result-header {
@@ -586,11 +507,7 @@
     margin-bottom: 16px;
   }
 
-  .result-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text2);
-  }
+  .result-title { font-size: 13px; font-weight: 600; color: var(--text2); }
 
   .tc-count {
     font-size: 12px;
@@ -644,12 +561,7 @@
     white-space: nowrap;
   }
 
-  .result-text {
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.6;
-  }
+  .result-text { color: var(--text); font-size: 13px; font-weight: 500; line-height: 1.6; }
 
   .result-tag {
     display: inline-block;
@@ -661,12 +573,7 @@
     border: 1px solid var(--border2);
   }
 
-  .result-pre {
-    white-space: pre-line;
-    font-size: 12px;
-    color: var(--text);
-    line-height: 1.6;
-  }
+  .result-pre { white-space: pre-line; font-size: 12px; color: var(--text); line-height: 1.6; }
 
   /* LOADING SKELETON */
   .skeleton-row td { padding: 14px; }
@@ -679,30 +586,17 @@
     border-radius: 4px;
   }
 
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
   .skeleton.short { width: 60%; }
   .skeleton.medium { width: 80%; }
 
   /* API KEY WRAPPER */
-  .header-api-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
+  .header-api-wrap { position: relative; display: flex; align-items: center; }
   .header-api-wrap input:focus {
     border-color: var(--accent-border) !important;
     box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important;
     background: var(--bg4) !important;
   }
-
-  .header-api-wrap input.key-ok {
-    border-color: rgba(52,211,153,0.45) !important;
-  }
+  .header-api-wrap input.key-ok { border-color: rgba(52,211,153,0.45) !important; }
 
   .api-conn-badge {
     display: flex;
@@ -717,29 +611,10 @@
     transition: all 0.3s;
   }
 
-  .api-conn-badge.disconnected {
-    background: var(--bg3);
-    border-color: var(--border);
-    color: var(--text3);
-  }
-
-  .api-conn-badge.connected {
-    background: var(--green-bg);
-    border-color: rgba(52,211,153,0.3);
-    color: var(--green);
-  }
-
-  .api-conn-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    flex-shrink: 0;
-  }
-
-  .api-conn-badge.connected .api-conn-dot {
-    animation: pulse 2s ease-in-out infinite;
-  }
+  .api-conn-badge.disconnected { background: var(--bg3); border-color: var(--border); color: var(--text3); }
+  .api-conn-badge.connected { background: var(--green-bg); border-color: rgba(52,211,153,0.3); color: var(--green); }
+  .api-conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .api-conn-badge.connected .api-conn-dot { animation: pulse 2s ease-in-out infinite; }
 
   /* 인라인 편집 */
   td.editable { cursor: text; }
@@ -816,7 +691,6 @@
 </header>
 
 <div class="main">
-
   <div class="sidebar">
     <div class="section">
       <div class="section-label">시나리오 입력</div>
@@ -941,6 +815,11 @@
 </div>
 
 <script>
+  // ── ⑤ 환경변수 분리 패치 ──
+  const GLOBAL_CONFIG = {
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec'
+  };
+
   // ── 상태 ──
   let tcData = [];
   let currentAbortController = null;
@@ -980,39 +859,31 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  // ── API 키 세션 저장 및 초기화 ──
-  (function() {
-    const saved = sessionStorage.getItem('gemini_key');
-    if (saved) {
-      const input = document.getElementById('headerApiKeyInput');
-      if (input) {
-        input.value = saved;
-        onHeaderKeyInput();
+  // ── ③ 파일 첨부 및 한글 깨짐 원천 방어 패치 ──
+  async function processFile(file) {
+    return new Promise((res) => {
+      const r = new FileReader();
+      const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
+      if (isText) {
+        r.onload = () => res({ name: file.name, size: file.size, mimeType: 'text/plain', data: r.result, isText: true });
+        r.readAsText(file, 'UTF-8');
+      } else {
+        r.onload = () => res({ name: file.name, size: file.size, mimeType: file.type || 'application/octet-stream', data: r.result.split(',')[1], isText: false });
+        r.readAsDataURL(file);
       }
-    }
-  })();
+    });
+  }
 
-  // ── 파일 첨부 관련 스크립트 ──
   document.getElementById('fileInput').addEventListener('change', async (ev) => {
     const files = Array.from(ev.target.files);
     for (const file of files) {
       if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
-      const base64 = await fileToBase64(file);
-      const mimeType = file.type || 'application/octet-stream';
-      attachedFiles.push({ file, base64, mimeType, name: file.name, size: file.size });
+      const processed = await processFile(file);
+      attachedFiles.push(processed);
     }
     ev.target.value = '';
     renderFileList();
   });
-
-  function fileToBase64(file) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result.split(',')[1]);
-      r.onerror = () => rej(new Error('파일 읽기 실패'));
-      r.readAsDataURL(file);
-    });
-  }
 
   function renderFileList() {
     const list = document.getElementById('fileList');
@@ -1089,8 +960,6 @@
       return;
     }
 
-    sessionStorage.setItem('gemini_key', apiKey);
-
     if (currentAbortController) currentAbortController.abort();
     currentAbortController = new AbortController();
 
@@ -1133,10 +1002,10 @@
       parts.push({ text: textContent });
 
       for (const f of attachedFiles) {
-        if (f.mimeType.startsWith('image/') || f.mimeType === 'application/pdf') {
-          parts.push({ inline_data: { mime_type: f.mimeType, data: f.base64 } });
+        if (f.isText) {
+          parts.push({ text: '\n=== 첨부 파일: ' + f.name + ' ===\n' + f.data });
         } else {
-          parts.push({ text: '\n=== 첨부 파일: ' + f.name + ' ===\n' + atob(f.base64) });
+          parts.push({ inline_data: { mime_type: f.mimeType, data: f.data } });
         }
       }
 
@@ -1201,6 +1070,10 @@
     } catch(e) {
       clearInterval(progressInterval);
       progressBar.style.display = 'none';
+      
+      // ② 취소/오류 발생 시 스켈레톤 노출 잔류 차단 패치
+      tbody.innerHTML = ''; 
+      
       if (e.name === 'AbortError') {
         dot.className = 'status-dot-idle';
         document.getElementById('statusText').textContent = '생성 취소됨';
@@ -1218,6 +1091,8 @@
         document.getElementById('statusText').textContent = '오류: ' + e.message;
         document.getElementById('statusText').style.color = 'var(--red)';
         showToast('❌ ' + e.message, 'error');
+        document.getElementById('resultArea').classList.remove('visible');
+        document.getElementById('emptyState').style.display = 'flex';
       }
     } finally {
       btn.classList.remove('loading');
@@ -1230,11 +1105,17 @@
     if (currentAbortController) currentAbortController.abort();
   }
 
+  // ── ④ 보안 기능 강화 이스케이프 함수 패치 ──
   function esc(s) {
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    return String(s||'')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#x27;')
+      .replace(/\n/g,'<br>');
   }
 
-  // ── 테이블 가상 렌더링 및 에디터 위젯 매핑 ──
   function renderTCs() {
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = tcData.map((tc, i) => {
@@ -1299,7 +1180,6 @@
     }
   }
 
-  // ── 클립보드 TSV 복사 (Ctrl+V용) ──
   async function copyToClipboard() {
     if (!tcData.length) return;
     const rows = tcData.map(tc => [
@@ -1322,9 +1202,7 @@
     }
   }
 
-  // ── 백엔드 구글 앱스 스크립트 전송 로직 (CORS 해결 패치) ──
   async function uploadToSheets() {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec';
     const sheetName = document.getElementById('sheetInput').value.trim();
     const jiraTitle = document.getElementById('jiraInput').value.trim();
     if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
@@ -1337,21 +1215,16 @@
     try {
       const payload = { sheetName, jiraTitle, tcData };
       
-      // 보안 해결 패치: mode: 'no-cors'를 과감히 제거하여 가짜 성공 알림 차단
-      const res = await fetch(scriptUrl, {
+      // ⑤ 최상단 글로벌 상수를 바인딩하여 전송
+      const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(payload)
       });
       
       if (!res.ok) throw new Error('네트워크 응답이 올바르지 않습니다. (HTTP ' + res.status + ')');
-      
       const result = await res.json();
-      
-      // 백엔드 내부 가스 런타임 오류 인터셉트
-      if (result.status === 'error') {
-        throw new Error(result.message);
-      }
+      if (result.status === 'error') throw new Error(result.message);
       
       showToast('📊 "' + sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
     } catch(e) {
@@ -1362,7 +1235,6 @@
     }
   }
 
-  // ── 토스트 위젯 공통 랩핑 ──
   function showToast(msg, type) {
     let toast = document.getElementById('appToast');
     if (!toast) {
@@ -1378,7 +1250,7 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // ── API 인터페이스 핸들러 ──
+  // ── ① 메모리 기반 API 변수 제어 패치 (sessionStorage 완전 청소) ──
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
   let headerKeyVisible = false;
 
@@ -1387,7 +1259,7 @@
     const input = document.getElementById('headerApiKeyInput');
     const badge = document.getElementById('apiConnectionStatus');
     const label = document.getElementById('apiConnLabel');
-    sessionStorage.setItem('gemini_key', val);
+    
     if (val.startsWith('AIza') && val.length > 10) {
       input.classList.add('key-ok');
       badge.className = 'api-conn-badge connected';
@@ -1406,7 +1278,6 @@
     document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
   }
 
-  // ── 드래그앤드롭 이벤트 리스너 ──
   async function handleFileDrop(ev) {
     ev.preventDefault();
     const files = Array.from(ev.dataTransfer.files).filter(f =>
@@ -1415,14 +1286,12 @@
     if (!files.length) { showToast('❗ 이미지, PDF, TXT 파일만 지원합니다', 'error'); return; }
     for (const file of files) {
       if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
-      const base64 = await fileToBase64(file);
-      const mimeType = file.type || 'application/octet-stream';
-      attachedFiles.push({ file, base64, mimeType, name: file.name, size: file.size });
+      const processed = await processFile(file);
+      attachedFiles.push(processed);
     }
     renderFileList();
   }
 
-  // ── 핫키 (Ctrl+Enter) 이벤트 매핑 ──
   document.addEventListener('keydown', ev => {
     if (ev.ctrlKey && ev.key === 'Enter') startGeneration();
   });
