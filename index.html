@@ -179,7 +179,8 @@
 
   textarea::placeholder { color: var(--text3); }
   textarea:focus {
-    outline: none;
+    outline: 2px solid var(--accent); /* 추가됨 */
+    outline-offset: 1px;             /* 추가됨 */
     border-color: var(--accent-border);
     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
     background: var(--bg4);
