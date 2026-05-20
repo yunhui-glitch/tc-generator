@@ -1023,7 +1023,6 @@
     document.getElementById('resultArea').classList.add('visible');
 
     try {
-      const apiKey = document.getElementById('headerApiKeyInput').value.trim();
       const url = `${CONFIG.API.GEMINI_BASE_URL}${modelCfg.id}:generateContent?key=${apiKey}`;
       const parts = [];
       const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
