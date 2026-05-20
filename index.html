@@ -586,10 +586,15 @@
     border-radius: 4px;
   }
 
-  /* 🛠️ 신규 반영: 누락되었던 Shimmer 무빙 키프레임 애니메이션 선언 복원 */
+  /* ⚙️ 디자인 패치: 정상 선언되었으나 누락되었던 키프레임 애니메이션 스펙 빌드 완료 */
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
   }
 
   .skeleton.short { width: 60%; }
@@ -864,7 +869,7 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  // 파일 청부 및 인코딩 복원 (UTF-8 한국어 지원)
+  // 파일 첨부 및 인코딩 복원 (UTF-8 한국어 지원)
   async function processFile(file) {
     return new Promise((res) => {
       const r = new FileReader();
@@ -1073,8 +1078,6 @@
 
     } catch(e) {
       clearInterval(progressInterval);
-      
-      // 🛠️ UI/UX 결함 패치: 취소 및 모든 오류 시점에 프로그레스 애니메이션 영역 명확히 차단 숨김 [cite: 1193, 1194]
       progressBar.style.display = 'none';
       tbody.innerHTML = ''; 
       
@@ -1098,7 +1101,6 @@
         document.getElementById('statusText').style.color = 'var(--red)';
         showToast('❌ ' + e.message, 'error');
         
-        // 🛠️ UX 복원 패치: 에러 시 우측 메인 결과 컴포넌트가 툭 끊겨 공백으로 밀리는 현상 대응 
         if (tcData.length) {
           renderTCs();
           document.getElementById('resultArea').classList.add('visible');
@@ -1263,7 +1265,7 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // 메모리 기반 자산 보안 격리
+  // 메모리 기반 API 변수 제어 및 상태 연동
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
   let headerKeyVisible = false;
 
