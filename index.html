@@ -904,4 +904,417 @@
       const isImg = f.mimeType.startsWith('image/');
       const iconClass = isPdf ? 'pdf' : isImg ? 'img' : 'txt';
       const icon = isPdf ? 'PDF' : isImg ? 'IMG' : 'TXT';
-      return
+      return '<div class="file-item">' +
+        '<div class="file-icon ' + iconClass + '">' + icon + '</div>' +
+        '<div class="file-meta">' +
+          '<div class="file-name">' + esc(f.name) + '</div>' +
+          '<div class="file-size">' + kb + ' · ' + (isPdf ? 'PDF' : isImg ? '이미지' : 'TXT') + '</div>' +
+        '</div>' +
+        '<button class="file-del" onclick="removeFile(' + i + ')">✕</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function removeFile(idx) {
+    attachedFiles.splice(idx, 1);
+    renderFileList();
+  }
+
+  const SYSTEM_PROMPT = `당신은 10년 차 이상의 시니어 QA 엔지니어이자 테스트 설계 전문가입니다.
+제공된 시나리오를 바탕으로 실무에서 즉시 사용 가능한 수준의 상세 테스트 케이스를 설계하십시오.
+
+**지시 사항:**
+1. **형식:** 반드시 순수 JSON 배열만 출력하십시오. 마크다운 코드블록이나 설명은 생략합니다.
+2. **범위:** 정상 케이스뿐만 아니라 경계값, 예외/비정상 상황(Edge Case)을 반드시 포함하십시오.
+3. **구체성:** 'test_steps'는 수행 순서에 따라 번호를 매겨 구체적으로 기술하십시오.
+   'expected_result'는 검증 가능한 기대 반응을 명확히 서술하십시오.
+4. **일관성:** tc_id는 요청한 접두사 기준 순번을 부여하고, jira 필드는 빈 문자열("")로 유지하십시오.
+
+**출력 스키마:**
+[
+  {
+    "tc_id": "TC-001",
+    "jira": "",
+    "category_large": "대분류",
+    "category_mid": "중분류",
+    "category_small": "소분류",
+    "test_item": "시험 항목",
+    "precondition": "전제조건 및 입력 데이터",
+    "test_steps": "1. 단계1\\n2. 단계2",
+    "expected_result": "1. 기대결과1\\n2. 기대결과2"
+  }
+]`;
+
+  function handleGenerateBtn() {
+    if (currentAbortController) cancelGenerate();
+    else startGeneration();
+  }
+
+  async function startGeneration() {
+    const apiKey = document.getElementById('headerApiKeyInput').value.trim();
+    const scenario = document.getElementById('scenarioInput').value.trim();
+    const prefix = document.getElementById('prefixInput').value.trim() || 'TC-001';
+    const category = document.getElementById('categoryInput').value.trim() || '';
+    const sheetVal = document.getElementById('sheetInput').value.trim();
+    const modelCfg = MODEL_CONFIG[currentModelKey];
+
+    if (!apiKey) { showToast('❗ Gemini API 키를 입력해주세요', 'error'); return; }
+    if (!scenario && !attachedFiles.length) { showToast('❗ 시나리오를 입력하거나 파일을 첨부해주세요', 'error'); return; }
+    if (!sheetVal) {
+      const sheetInput = document.getElementById('sheetInput');
+      sheetInput.style.borderColor = 'rgba(248,113,113,0.5)';
+      document.getElementById('sheetError').style.display = 'block';
+      sheetInput.focus();
+      return;
+    }
+
+    if (currentAbortController) currentAbortController.abort();
+    currentAbortController = new AbortController();
+
+    const btn = document.getElementById('generateBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="spinner"></div> 취소';
+    
+    document.getElementById('copyBtn').disabled = true;
+    document.getElementById('sheetBtn').disabled = true;
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultArea').classList.remove('visible');
+
+    const dot = document.getElementById('statusDot');
+    dot.className = 'status-dot-active';
+    
+    document.getElementById('statusText').textContent = 'Gemini가 TC를 생성하는 중...';
+    document.getElementById('statusText').style.color = 'var(--green)';
+
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    progressBar.style.display = 'block';
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress = Math.min(progress + Math.random() * 8, 85);
+      progressFill.style.width = progress + '%';
+    }, 400);
+
+    const tbody = document.getElementById('tcBody');
+    tbody.innerHTML = Array(4).fill(0).map(() =>
+      '<tr class="skeleton-row">' +
+        Array(9).fill('<td><div class="skeleton medium"></div></td>').join('') +
+      '</tr>'
+    ).join('');
+    document.getElementById('resultArea').classList.add('visible');
+
+    try {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelCfg.id + ':generateContent?key=' + apiKey;
+      const parts = [];
+      const textContent = 'TC ID 접두사: ' + prefix + '\n대분류: ' + category +
+        (scenario ? '\n\n=== 시나리오 ===\n' + scenario : '\n\n첨부된 파일을 분석하여 TC를 생성하세요.');
+      parts.push({ text: textContent });
+
+      for (const f of attachedFiles) {
+        if (f.isText) {
+          parts.push({ text: '\n=== 첨부 파일: ' + f.name + ' ===\n' + f.data });
+        } else {
+          parts.push({ inline_data: { mime_type: f.mimeType, data: f.data } });
+        }
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: currentAbortController.signal,
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts }],
+          generationConfig: modelCfg.generationConfig
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        const msg = err.error?.message || 'HTTP ' + res.status;
+        if (res.status === 403 || res.status === 401) throw new Error('API 키 오류: 키를 확인해주세요');
+        if (res.status === 429) throw new Error('요청 한도 초과: 잠시 후 다시 시도해주세요');
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const resParts = data.candidates?.[0]?.content?.parts || [];
+      const raw = resParts.filter(p => p.text && !p.thought).map(p => p.text).join('');
+
+      let parsed = null;
+      const cleaned = raw.replace(/```json|```/g, '').trim();
+      
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch(e) {
+        const matches = [...cleaned.matchAll(/\[[\s\S]*?\]/g)];
+        for (const m of matches) {
+          try { 
+            const arr = JSON.parse(m[0]); 
+            if (Array.isArray(arr) && arr.length > 0 && arr[0].tc_id) { parsed = arr; break; } 
+          } catch(err) {}
+        }
+      }
+
+      if (!parsed || !parsed.length) throw new Error('TC 파싱에 실패했습니다. 시나리오 내용을 조금 더 구체적으로 보완해보세요.');
+
+      tcData = parsed.map(tc => ({ ...tc, jira: '' }));
+      clearInterval(progressInterval);
+      progressFill.style.width = '100%';
+      
+      setTimeout(() => {
+        progressBar.style.display = 'none';
+        progressFill.style.width = '0%';
+        renderTCs();
+        document.getElementById('generatedCount').textContent = tcData.length + '개';
+        document.getElementById('tcCountLabel').textContent = '총 ' + tcData.length + '개 생성됨';
+        document.getElementById('copyBtn').disabled = false;
+        document.getElementById('sheetBtn').disabled = false;
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = tcData.length + '개 TC 생성 완료';
+        document.getElementById('statusText').style.color = 'var(--text3)';
+        showToast('✅ TC ' + tcData.length + '개 생성 완료!', 'success');
+      }, 300);
+
+    } catch(e) {
+      clearInterval(progressInterval);
+      progressBar.style.display = 'none';
+      tbody.innerHTML = ''; 
+      
+      if (e.name === 'AbortError') {
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = '생성 취소됨';
+        document.getElementById('statusText').style.color = 'var(--text3)';
+        showToast('⛔ 생성이 취소되었습니다', '');
+        if (tcData.length) {
+          renderTCs();
+          document.getElementById('resultArea').classList.add('visible');
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false; 
+        } else {
+          document.getElementById('resultArea').classList.remove('visible');
+          document.getElementById('emptyState').style.display = 'flex';
+        }
+      } else {
+        dot.className = 'status-dot-idle';
+        document.getElementById('statusText').textContent = '오류: ' + e.message;
+        document.getElementById('statusText').style.color = 'var(--red)';
+        showToast('❌ ' + e.message, 'error');
+        
+        if (tcData.length) {
+          renderTCs();
+          document.getElementById('resultArea').classList.add('visible');
+          document.getElementById('copyBtn').disabled = false; 
+          document.getElementById('sheetBtn').disabled = false;
+        } else {
+          document.getElementById('resultArea').classList.remove('visible');
+          document.getElementById('emptyState').style.display = 'flex';
+        }
+      }
+    } finally {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>✦</span> TC 초안 생성';
+      currentAbortController = null;
+    }
+  }
+
+  function cancelGenerate() {
+    if (currentAbortController) currentAbortController.abort();
+  }
+
+  // HTML 안전 이스케이프
+  function esc(s) {
+    return String(s||'')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#x27;')
+      .replace(/\n/g,'<br>');
+  }
+
+  function renderTCs() {
+    const tbody = document.getElementById('tcBody');
+    tbody.innerHTML = tcData.map((tc, i) => {
+      const ed = (field, display, isMulti) =>
+        '<td class="editable" data-row="' + i + '" data-field="' + field + '" data-multi="' + isMulti + '" onclick="startEdit(this)">' + display + '</td>';
+      return '<tr>' +
+        ed('tc_id', '<span class="tc-id-cell">' + esc(tc.tc_id) + '</span>', false) +
+        ed('jira', '<span style="font-size:11px;color:var(--accent2)">' + esc(tc.jira) + '</span>', false) +
+        ed('category_large', '<span class="result-tag">' + esc(tc.category_large) + '</span>', false) +
+        ed('category_mid', '<span class="result-tag">' + esc(tc.category_mid) + '</span>', false) +
+        ed('category_small', '<span class="result-tag">' + esc(tc.category_small) + '</span>', false) +
+        ed('test_item', '<span class="result-text">' + esc(tc.test_item) + '</span>', false) +
+        ed('precondition', '<span class="result-pre">' + esc(tc.precondition) + '</span>', true) +
+        ed('test_steps', '<span class="result-pre">' + esc(tc.test_steps) + '</span>', true) +
+        ed('expected_result', '<span class="result-pre">' + esc(tc.expected_result) + '</span>', true) +
+      '</tr>';
+    }).join('');
+  }
+
+  function startEdit(td) {
+    const rowIdx = parseInt(td.dataset.row);
+    const field = td.dataset.field;
+    const isMulti = td.dataset.multi === 'true';
+    if (td.classList.contains('editing')) return;
+    const curVal = tcData[rowIdx][field] || '';
+    td.classList.add('editing');
+
+    const el = document.createElement(isMulti ? 'textarea' : 'input');
+    el.className = 'cell-input';
+    el.value = curVal;
+    if (isMulti) {
+      el.rows = Math.max(3, curVal.split('\n').length + 1);
+      el.style.minHeight = (el.rows * 20 + 16) + 'px';
+    }
+    td.innerHTML = '';
+    td.appendChild(el);
+    el.focus();
+
+    const commit = () => {
+      const newVal = el.value;
+      tcData[rowIdx][field] = newVal;
+      td.classList.remove('editing');
+      if (field === 'tc_id') td.innerHTML = '<span class="tc-id-cell">' + esc(newVal) + '</span>';
+      else if (field === 'jira') td.innerHTML = '<span style="font-size:11px;color:var(--accent2)">' + esc(newVal) + '</span>';
+      else if (['category_large','category_mid','category_small'].includes(field)) td.innerHTML = '<span class="result-tag">' + esc(newVal) + '</span>';
+      else if (field === 'test_item') td.innerHTML = '<span class="result-text">' + esc(newVal) + '</span>';
+      else td.innerHTML = '<span class="result-pre">' + esc(newVal) + '</span>';
+    };
+
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', e => {
+      if (!isMulti && e.key === 'Enter') { e.preventDefault(); el.blur(); }
+      if (e.key === 'Escape') { el.value = curVal; el.blur(); }
+    });
+  }
+
+  function onSheetInput() {
+    const val = document.getElementById('sheetInput').value.trim();
+    if (val) {
+      document.getElementById('sheetInput').style.borderColor = '';
+      document.getElementById('sheetError').style.display = 'none';
+    }
+  }
+
+  async function copyToClipboard() {
+    if (!tcData.length) return;
+    const rows = tcData.map(tc => [
+      tc.tc_id||'', tc.jira||'', tc.category_large||'', tc.category_mid||'',
+      tc.category_small||'', tc.test_item||'', tc.precondition||'',
+      tc.test_steps||'', tc.expected_result||''
+    ].map(v => {
+      const clean = v.replace(/\t/g, ' ');
+      return clean.includes('\n') ? '"' + clean.replace(/"/g, '""') + '"' : clean;
+    }).join('\t'));
+    const tsv = rows.join('\n');
+    try {
+      await navigator.clipboard.writeText(tsv);
+      showToast('📋 복사 완료! 구글 시트에서 원하는 셀 클릭 후 Ctrl+V 하세요.', 'success');
+    } catch(e) {
+      const ta = document.createElement('textarea');
+      ta.value = tsv; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('📋 복사 완료! 구글 시트에서 Ctrl+V 하세요.', 'success');
+    }
+  }
+
+  async function uploadToSheets() {
+    const sheetName = document.getElementById('sheetInput').value.trim();
+    const jiraTitle = document.getElementById('jiraInput').value.trim();
+    if (!tcData.length) { showToast('❗ 먼저 TC를 생성해주세요', 'error'); return; }
+    if (!sheetName) { showToast('❗ 시트 탭 이름을 입력해주세요', 'error'); return; }
+
+    const btn = document.getElementById('sheetBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> 업로드 중...';
+
+    try {
+      const payload = { sheetName, jiraTitle, tcData };
+      
+      const res = await fetch(GLOBAL_CONFIG.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) throw new Error('네트워크 응답이 올바르지 않습니다. (HTTP ' + res.status + ')');
+      const result = await res.json();
+      if (result.status === 'error') throw new Error(result.message);
+      
+      showToast('📊 "' + result.sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
+    } catch(e) {
+      showToast('❌ 업로드 실패: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>📊</span> 구글 시트에 추가';
+    }
+  }
+
+  function showToast(msg, type) {
+    let toast = document.getElementById('appToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'appToast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);display:none;align-items:center;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:380px;line-height:1.5;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'flex';
+    toast.style.borderColor = type === 'success' ? 'rgba(52,211,153,0.35)' : type === 'error' ? 'rgba(248,113,113,0.35)' : 'var(--border2)';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+  }
+
+  // 로컬 브라우저 런타임 메모리 격리
+  document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
+  let headerKeyVisible = false;
+
+  function onHeaderKeyInput() {
+    const val = document.getElementById('headerApiKeyInput').value.trim();
+    const input = document.getElementById('headerApiKeyInput');
+    const badge = document.getElementById('apiConnectionStatus');
+    const label = document.getElementById('apiConnLabel');
+    
+    if (val.startsWith('AIza') && val.length > 10) {
+      input.classList.add('key-ok');
+      badge.className = 'api-conn-badge connected';
+      label.textContent = '연결됨';
+    } else {
+      input.classList.remove('key-ok');
+      badge.className = 'api-conn-badge disconnected';
+      label.textContent = val.length > 0 ? '키 확인 중' : '미연결';
+    }
+  }
+
+  function toggleHeaderKeyVis() {
+    headerKeyVisible = !headerKeyVisible;
+    const input = document.getElementById('headerApiKeyInput');
+    input.type = headerKeyVisible ? 'text' : 'password';
+    document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
+  }
+
+  async function handleFileDrop(ev) {
+    ev.preventDefault();
+    const files = Array.from(ev.dataTransfer.files).filter(f =>
+      f.type.startsWith('image/') || f.type === 'application/pdf' || f.type === 'text/plain' || f.name.endsWith('.txt')
+    );
+    if (!files.length) { showToast('❗ 이미지, PDF, TXT 파일만 지원합니다', 'error'); return; }
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) { showToast('❗ ' + file.name + ' — 10MB 초과', 'error'); continue; }
+      const processed = await processFile(file);
+      attachedFiles.push(processed);
+    }
+    renderFileList();
+  }
+
+  // 🔒 단축키 중복 패치: 비동기 생성 파이프라인 연산 중 단축키 연타 입력 유입 무시 처리
+  document.addEventListener('keydown', ev => {
+    if (ev.ctrlKey && ev.key === 'Enter') {
+      if (currentAbortController) return; 
+      startGeneration();
+    }
+  });
+</script>
+</body>
+</html>
