@@ -239,40 +239,6 @@
     color: var(--text2);
   }
 
-  /* EXAMPLE CHIPS */
-  .example-chips {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .example-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--text2);
-    font-size: 12px;
-    text-align: left;
-  }
-
-  .example-chip:hover {
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
-    color: var(--accent2);
-  }
-
-  .chip-icon {
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
   /* FILE DROP */
   .file-drop {
     border: 1.5px dashed var(--border2);
@@ -311,10 +277,6 @@
     gap: 5px;
   }
 
-  .form-group.full {
-    grid-column: 1 / -1;
-  }
-
   label {
     font-size: 11px;
     color: var(--text2);
@@ -322,12 +284,6 @@
     display: flex;
     align-items: center;
     gap: 4px;
-  }
-
-  .label-hint {
-    color: var(--text3);
-    font-size: 10px;
-    cursor: help;
   }
 
   input[type="text"] {
@@ -349,25 +305,6 @@
     border-color: var(--accent-border);
     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
     background: var(--bg4);
-  }
-
-  .tc-id-preview {
-    margin-top: 8px;
-    padding: 8px 10px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 11px;
-    color: var(--text3);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .tc-id-preview span {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--accent2);
-    font-size: 12px;
   }
 
   /* MODEL SELECT */
@@ -480,7 +417,7 @@
     border: 1px solid rgba(248,113,113,0.35);
     color: var(--red);
     cursor: pointer;
-}
+  }
 
   .spinner {
     width: 16px;
@@ -697,13 +634,8 @@
     color: var(--text);
   }
 
-  .tc-table tr:last-child td {
-    border-bottom: none;
-  }
-
-  .tc-table tr:hover td {
-    background: var(--bg3);
-  }
+  .tc-table tr:last-child td { border-bottom: none; }
+  .tc-table tr:hover td { background: var(--bg3); }
 
   .tc-id-cell {
     font-family: 'JetBrains Mono', monospace;
@@ -712,28 +644,11 @@
     white-space: nowrap;
   }
 
-  .priority-badge {
-    display: inline-flex;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-  }
-
-  .priority-high { background: var(--red-bg); color: var(--red); }
-  .priority-mid { background: var(--amber-bg); color: var(--amber); }
-  .priority-low { background: var(--green-bg); color: var(--green); }
-
   .result-text {
     color: var(--text);
     font-size: 13px;
     font-weight: 500;
     line-height: 1.6;
-  }
-
-  /* LOADING SKELETON */
-  .skeleton-row td {
-    padding: 14px;
   }
 
   .result-tag {
@@ -753,6 +668,9 @@
     line-height: 1.6;
   }
 
+  /* LOADING SKELETON */
+  .skeleton-row td { padding: 14px; }
+
   .skeleton {
     height: 14px;
     background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
@@ -769,331 +687,7 @@
   .skeleton.short { width: 60%; }
   .skeleton.medium { width: 80%; }
 
-  /* TOOLTIP */
-  [data-tooltip] {
-    position: relative;
-    cursor: help;
-  }
-
-  [data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg4);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 5px 9px;
-    font-size: 11px;
-    color: var(--text);
-    white-space: nowrap;
-    z-index: 100;
-    pointer-events: none;
-  }
-
-  /* API KEY MODAL */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-
-  .modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    width: 420px;
-    max-width: calc(100vw - 40px);
-    transform: translateY(8px) scale(0.98);
-    transition: transform 0.2s;
-  }
-
-  .modal-overlay.open .modal {
-    transform: translateY(0) scale(1);
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .modal-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .modal-subtitle {
-    font-size: 12px;
-    color: var(--text3);
-    line-height: 1.5;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--text3);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 6px;
-    transition: all 0.15s;
-    font-family: inherit;
-    line-height: 1;
-    flex-shrink: 0;
-    margin-left: 12px;
-  }
-
-  .modal-close:hover {
-    background: var(--bg4);
-    color: var(--text);
-  }
-
-  .api-model-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .api-model-badge {
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.15s;
-    background: var(--bg4);
-    color: var(--text3);
-  }
-
-  .api-model-badge.selected {
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
-    color: var(--accent2);
-  }
-
-  .key-input-wrap {
-    position: relative;
-    margin-bottom: 8px;
-  }
-
-  .key-input-wrap input {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 40px 10px 12px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: 'JetBrains Mono', monospace;
-    width: 100%;
-    transition: all 0.2s;
-    letter-spacing: 0.05em;
-  }
-
-  .key-input-wrap input::placeholder {
-    color: var(--text3);
-    font-family: 'Pretendard', sans-serif;
-    letter-spacing: 0;
-  }
-
-  .key-input-wrap input:focus {
-    outline: none;
-    border-color: var(--accent-border);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-    background: var(--bg4);
-  }
-
-  .key-input-wrap input.valid {
-    border-color: rgba(52,211,153,0.4);
-    box-shadow: 0 0 0 3px rgba(52,211,153,0.08);
-  }
-
-  .key-input-wrap input.invalid {
-    border-color: rgba(248,113,113,0.4);
-    box-shadow: 0 0 0 3px rgba(248,113,113,0.08);
-  }
-
-  .toggle-vis {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text3);
-    cursor: pointer;
-    font-size: 15px;
-    padding: 4px;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-
-  .toggle-vis:hover { color: var(--text2); }
-
-  .key-hint {
-    font-size: 11px;
-    color: var(--text3);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .key-hint a {
-    color: var(--accent2);
-    text-decoration: none;
-  }
-
-  .key-hint a:hover { text-decoration: underline; }
-
-  .key-status-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-    font-size: 12px;
-  }
-
-  .key-status-row.connected {
-    background: var(--green-bg);
-    border: 1px solid rgba(52,211,153,0.2);
-    color: var(--green);
-  }
-
-  .key-status-row.disconnected {
-    background: var(--amber-bg);
-    border: 1px solid rgba(251,191,36,0.2);
-    color: var(--amber);
-  }
-
-  .key-status-row.error {
-    background: var(--red-bg);
-    border: 1px solid rgba(248,113,113,0.2);
-    color: var(--red);
-  }
-
-  .modal-footer {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
-
-  .modal-btn {
-    padding: 9px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: 1px solid var(--border2);
-    background: var(--bg4);
-    color: var(--text2);
-  }
-
-  .modal-btn:hover {
-    background: var(--bg3);
-    color: var(--text);
-  }
-
-  .modal-btn.confirm {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  .modal-btn.confirm:hover {
-    background: #4f52d4;
-  }
-
-  .modal-btn.confirm:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .modal-btn.danger {
-    color: var(--red);
-    border-color: rgba(248,113,113,0.3);
-    background: var(--red-bg);
-  }
-
-  .modal-btn.danger:hover {
-    background: rgba(248,113,113,0.18);
-  }
-
-  /* api-status unset state */
-  .api-status.unset {
-    background: var(--amber-bg);
-    border-color: rgba(251,191,36,0.25);
-    color: var(--amber);
-  }
-
-  .api-status.unset .status-dot {
-    background: var(--amber);
-  }
-
-  /* 인라인 편집 */
-  td.editable { cursor: text; }
-  td.editable:hover { background: rgba(99,102,241,0.05) !important; }
-  td.editing { padding: 0 !important; }
-  .cell-input {
-    width: 100%;
-    height: 100%;
-    min-height: 36px;
-    background: var(--bg4);
-    border: 1.5px solid var(--accent-border);
-    border-radius: 4px;
-    padding: 8px 10px;
-    color: var(--text);
-    font-size: 12px;
-    font-family: inherit;
-    line-height: 1.6;
-    resize: none;
-    outline: none;
-    box-sizing: border-box;
-    display: block;
-  }
-  .cell-input:focus {
-    border-color: var(--accent2);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-  }
-
-  /* 파일 목록 */
-  .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
-  .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
-  .file-icon { width: 30px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: -0.3px; }
-  .file-icon.pdf { background: rgba(248,113,113,0.15); color: var(--red); }
-  .file-icon.img { background: var(--accent-bg); color: var(--accent2); }
-  .file-icon.txt { background: var(--green-bg); color: var(--green); }
-  .file-meta { flex: 1; min-width: 0; }
-  .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .file-size { font-size: 10px; color: var(--text3); }
-  .file-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 2px 5px; border-radius: 4px; background: none; border: none; line-height: 1; flex-shrink: 0; transition: all 0.15s; }
-  .file-del:hover { color: var(--red); background: var(--red-bg); }
-
-  /* API 키 인라인 헤더 */
+  /* API KEY WRAPPER */
   .header-api-wrap {
     position: relative;
     display: flex;
@@ -1147,31 +741,55 @@
     animation: pulse 2s ease-in-out infinite;
   }
 
-  /* Sheet name auto */
-  .auto-tag {
-    font-size: 10px;
-    padding: 1px 6px;
+  /* 인라인 편집 */
+  td.editable { cursor: text; }
+  td.editable:hover { background: rgba(99,102,241,0.05) !important; }
+  td.editing { padding: 0 !important; }
+  
+  .cell-input {
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
     background: var(--bg4);
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--accent-border);
     border-radius: 4px;
-    color: var(--text3);
-    font-weight: 500;
-    font-family: 'JetBrains Mono', monospace;
-    margin-left: 4px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+  }
+  .cell-input:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
   }
 
+  /* 파일 목록 */
+  .file-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+  .file-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; }
+  .file-icon { width: 30px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: -0.3px; }
+  .file-icon.pdf { background: rgba(248,113,113,0.15); color: var(--red); }
+  .file-icon.img { background: var(--accent-bg); color: var(--accent2); }
+  .file-icon.txt { background: var(--green-bg); color: var(--green); }
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 10px; color: var(--text3); }
+  .file-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 2px 5px; border-radius: 4px; background: none; border: none; line-height: 1; flex-shrink: 0; transition: all 0.15s; }
+  .file-del:hover { color: var(--red); background: var(--red-bg); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="header-left">
     <div class="logo-icon">✦</div>
     <span class="logo-text">TC 자동 생성기</span>
   </div>
   <div class="header-right">
-    <!-- API 키 인라인 입력 + 상태 -->
     <div style="display: flex; align-items: center; gap: 6px;">
       <div class="header-api-wrap" id="headerApiWrap">
         <input
@@ -1197,21 +815,14 @@
   </div>
 </header>
 
-<!-- MAIN -->
 <div class="main">
 
-  <!-- SIDEBAR -->
   <div class="sidebar">
-
-    <!-- 시나리오 입력 -->
     <div class="section">
       <div class="section-label">시나리오 입력</div>
       <textarea id="scenarioInput" placeholder="기능명, 조건, 예외 케이스 등을 입력하세요." rows="4"></textarea>
-
-
     </div>
 
-    <!-- 파일 첨부 -->
     <div class="section">
       <div class="section-label">파일 첨부 <span style="color: var(--text3); font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 400;">— 첨부 시 시나리오 생략 가능</span></div>
       <div class="file-drop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent-border)'" ondragleave="this.style.borderColor=''" ondrop="handleFileDrop(event);this.style.borderColor=''">
@@ -1223,7 +834,6 @@
       <div class="file-list" id="fileList"></div>
     </div>
 
-    <!-- JIRA / 기능명 -->
     <div class="section">
       <div class="section-label">식별 정보</div>
       <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1251,7 +861,6 @@
       </div>
     </div>
 
-    <!-- 모델 선택 -->
     <div class="section">
       <div class="section-label">AI 모델</div>
       <div class="model-tabs">
@@ -1274,17 +883,12 @@
       </div>
     </div>
 
-    <!-- 생성 버튼 -->
     <button class="generate-btn" id="generateBtn" onclick="handleGenerateBtn()">
       <span>✦</span> TC 초안 생성
     </button>
-
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
-
-    <!-- STATUS BAR -->
     <div class="status-bar">
       <div class="status-left">
         <div class="status-indicator" id="statusIndicator">
@@ -1298,7 +902,6 @@
       <div style="font-size: 11px; color: var(--text3);" id="tcCountLabel"></div>
     </div>
 
-    <!-- EMPTY STATE -->
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">📋</div>
       <div class="empty-title">TC 초안이 여기에 표시됩니다</div>
@@ -1312,7 +915,6 @@
       </div>
     </div>
 
-    <!-- RESULT -->
     <div class="result-area" id="resultArea">
       <div class="result-header">
         <span class="result-title">생성된 테스트 케이스</span>
@@ -1335,7 +937,6 @@
         <tbody id="tcBody"></tbody>
       </table>
     </div>
-
   </div>
 </div>
 
@@ -1379,7 +980,7 @@
     document.getElementById('modelDesc').textContent = modelDescs[key];
   }
 
-  // ── API 키 세션 저장 ──
+  // ── API 키 세션 저장 및 초기화 ──
   (function() {
     const saved = sessionStorage.getItem('gemini_key');
     if (saved) {
@@ -1391,7 +992,7 @@
     }
   })();
 
-  // ── 파일 첨부 ──
+  // ── 파일 첨부 관련 스크립트 ──
   document.getElementById('fileInput').addEventListener('change', async (ev) => {
     const files = Array.from(ev.target.files);
     for (const file of files) {
@@ -1459,21 +1060,17 @@
     "category_small": "소분류",
     "test_item": "시험 항목",
     "precondition": "전제조건 및 입력 데이터",
-    "test_steps": "1. 단계1\n2. 단계2",
-    "expected_result": "1. 기대결과1\n2. 기대결과2"
+    "test_steps": "1. 단계1\\n2. 단계2",
+    "expected_result": "1. 기대결과1\\n2. 기대결과2"
   }
 ]`;
 
-  // ── 생성/취소 버튼 핸들러 ──
   function handleGenerateBtn() {
-    if (currentAbortController) {
-      cancelGenerate();
-    } else {
-      startGeneration();
-    }
+    if (currentAbortController) cancelGenerate();
+    else startGeneration();
   }
 
-  // ── TC 생성 ──
+  // ── TC 생성 (Gemini API Call) ──
   async function startGeneration() {
     const apiKey = document.getElementById('headerApiKeyInput').value.trim();
     const scenario = document.getElementById('scenarioInput').value.trim();
@@ -1497,11 +1094,10 @@
     if (currentAbortController) currentAbortController.abort();
     currentAbortController = new AbortController();
 
-    // UI — 생성 시작
     const btn = document.getElementById('generateBtn');
     btn.classList.add('loading');
     btn.innerHTML = '<div class="spinner"></div> 취소';
-    btn.disabled = false;
+    
     document.getElementById('copyBtn').disabled = true;
     document.getElementById('sheetBtn').disabled = true;
     document.getElementById('emptyState').style.display = 'none';
@@ -1524,15 +1120,7 @@
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = Array(4).fill(0).map(() =>
       '<tr class="skeleton-row">' +
-        '<td><div class="skeleton short"></div></td>' +
-        '<td><div class="skeleton short"></div></td>' +
-        '<td><div class="skeleton short"></div></td>' +
-        '<td><div class="skeleton short"></div></td>' +
-        '<td><div class="skeleton short"></div></td>' +
-        '<td><div class="skeleton medium"></div></td>' +
-        '<td><div class="skeleton medium"></div></td>' +
-        '<td><div class="skeleton"></div></td>' +
-        '<td><div class="skeleton"></div></td>' +
+        Array(9).fill('<td><div class="skeleton medium"></div></td>').join('') +
       '</tr>'
     ).join('');
     document.getElementById('resultArea').classList.add('visible');
@@ -1576,23 +1164,26 @@
       const raw = resParts.filter(p => p.text && !p.thought).map(p => p.text).join('');
 
       let parsed = null;
-      if (!modelCfg.thinking) {
-        try { parsed = JSON.parse(raw); } catch(e) {
-          throw new Error('데이터 파싱 실패. 시나리오를 더 구체적으로 입력해보세요.');
-        }
-      } else {
-        const cleaned = raw.replace(/```json|```/g, '').trim();
+      const cleaned = raw.replace(/```json|```/g, '').trim();
+      
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch(e) {
         const matches = [...cleaned.matchAll(/\[[\s\S]*?\]/g)];
         for (const m of matches) {
-          try { const arr = JSON.parse(m[0]); if (Array.isArray(arr) && arr.length > 0 && arr[0].tc_id) { parsed = arr; break; } } catch(e) {}
+          try { 
+            const arr = JSON.parse(m[0]); 
+            if (Array.isArray(arr) && arr.length > 0 && arr[0].tc_id) { parsed = arr; break; } 
+          } catch(err) {}
         }
-        if (!parsed) { const gm = cleaned.match(/\[[\s\S]*\]/); if (gm) { try { parsed = JSON.parse(gm[0]); } catch(e) {} } }
-        if (!parsed || !parsed.length) throw new Error('TC 파싱 실패. 시나리오를 더 구체적으로 입력해보세요.');
       }
+
+      if (!parsed || !parsed.length) throw new Error('TC 파싱에 실패했습니다. 시나리오 내용을 조금 더 구체적으로 보완해보세요.');
 
       tcData = parsed.map(tc => ({ ...tc, jira: '' }));
       clearInterval(progressInterval);
       progressFill.style.width = '100%';
+      
       setTimeout(() => {
         progressBar.style.display = 'none';
         progressFill.style.width = '0%';
@@ -1615,7 +1206,6 @@
         document.getElementById('statusText').textContent = '생성 취소됨';
         document.getElementById('statusText').style.color = 'var(--text3)';
         showToast('⛔ 생성이 취소되었습니다', '');
-        // 이전 데이터 있으면 복원, 없으면 빈 상태로
         if (tcData.length) {
           renderTCs();
           document.getElementById('resultArea').classList.add('visible');
@@ -1630,9 +1220,7 @@
         showToast('❌ ' + e.message, 'error');
       }
     } finally {
-      const btn = document.getElementById('generateBtn');
       btn.classList.remove('loading');
-      btn.disabled = false;
       btn.innerHTML = '<span>✦</span> TC 초안 생성';
       currentAbortController = null;
     }
@@ -1642,11 +1230,11 @@
     if (currentAbortController) currentAbortController.abort();
   }
 
-  // ── 유틸 ──
   function esc(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
   }
 
+  // ── 테이블 가상 렌더링 및 에디터 위젯 매핑 ──
   function renderTCs() {
     const tbody = document.getElementById('tcBody');
     tbody.innerHTML = tcData.map((tc, i) => {
@@ -1689,7 +1277,6 @@
       const newVal = el.value;
       tcData[rowIdx][field] = newVal;
       td.classList.remove('editing');
-      // 셀 내용 다시 렌더
       if (field === 'tc_id') td.innerHTML = '<span class="tc-id-cell">' + esc(newVal) + '</span>';
       else if (field === 'jira') td.innerHTML = '<span style="font-size:11px;color:var(--accent2)">' + esc(newVal) + '</span>';
       else if (['category_large','category_mid','category_small'].includes(field)) td.innerHTML = '<span class="result-tag">' + esc(newVal) + '</span>';
@@ -1712,6 +1299,7 @@
     }
   }
 
+  // ── 클립보드 TSV 복사 (Ctrl+V용) ──
   async function copyToClipboard() {
     if (!tcData.length) return;
     const rows = tcData.map(tc => [
@@ -1734,6 +1322,7 @@
     }
   }
 
+  // ── 백엔드 구글 앱스 스크립트 전송 로직 (CORS 해결 패치) ──
   async function uploadToSheets() {
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyTE6CXjERtRd993RJmaozmA9l7zcqnuhu3EJfW1kcNYSl04LMCJeLljqpdlCRQHiI/exec';
     const sheetName = document.getElementById('sheetInput').value.trim();
@@ -1747,21 +1336,33 @@
 
     try {
       const payload = { sheetName, jiraTitle, tcData };
-      await fetch(scriptUrl, {
+      
+      // 보안 해결 패치: mode: 'no-cors'를 과감히 제거하여 가짜 성공 알림 차단
+      const res = await fetch(scriptUrl, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(payload)
       });
+      
+      if (!res.ok) throw new Error('네트워크 응답이 올바르지 않습니다. (HTTP ' + res.status + ')');
+      
+      const result = await res.json();
+      
+      // 백엔드 내부 가스 런타임 오류 인터셉트
+      if (result.status === 'error') {
+        throw new Error(result.message);
+      }
+      
       showToast('📊 "' + sheetName + '" 탭으로 업로드 완료! 시트에서 확인해주세요.', 'success');
     } catch(e) {
-      showToast('❌ ' + e.message, 'error');
+      showToast('❌ 업로드 실패: ' + e.message, 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span>📊</span> 구글 시트에 추가';
     }
   }
 
+  // ── 토스트 위젯 공통 랩핑 ──
   function showToast(msg, type) {
     let toast = document.getElementById('appToast');
     if (!toast) {
@@ -1777,12 +1378,8 @@
     toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // ── HEADER API KEY ──
+  // ── API 인터페이스 핸들러 ──
   document.getElementById('headerApiKeyInput').addEventListener('input', onHeaderKeyInput);
-  document.getElementById('headerApiKeyInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') confirmHeaderKey();
-  });
-
   let headerKeyVisible = false;
 
   function onHeaderKeyInput() {
@@ -1802,10 +1399,6 @@
     }
   }
 
-  function confirmHeaderKey() {
-    onHeaderKeyInput();
-  }
-
   function toggleHeaderKeyVis() {
     headerKeyVisible = !headerKeyVisible;
     const input = document.getElementById('headerApiKeyInput');
@@ -1813,7 +1406,7 @@
     document.getElementById('headerVisBtn').textContent = headerKeyVisible ? '🙈' : '👁';
   }
 
-  // ── 파일 드래그앤드롭 ──
+  // ── 드래그앤드롭 이벤트 리스너 ──
   async function handleFileDrop(ev) {
     ev.preventDefault();
     const files = Array.from(ev.dataTransfer.files).filter(f =>
@@ -1829,7 +1422,7 @@
     renderFileList();
   }
 
-  // ── Ctrl+Enter 단축키 ──
+  // ── 핫키 (Ctrl+Enter) 이벤트 매핑 ──
   document.addEventListener('keydown', ev => {
     if (ev.ctrlKey && ev.key === 'Enter') startGeneration();
   });
